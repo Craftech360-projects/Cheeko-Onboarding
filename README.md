@@ -1,6 +1,6 @@
 # Cheeko — Setup & Onboarding page
 
-The `onboarding.html` page of cheekoai.in: a five-step device setup wizard, a
+The `index.html` page of cheekoai.in: a five-step device setup wizard, a
 parent dashboard, and the support/documentation section.
 
 Previously this was a single 1,447-line `start-minimal.html` with the CSS,
@@ -11,7 +11,7 @@ a conventional static-site structure.
 
 ```
 .
-├── onboarding.html               the page (markup only)
+├── index.html                    the page (markup only)
 ├── README.md
 └── assets/
     ├── img/
@@ -118,7 +118,7 @@ variables, `SCREAMING_SNAKE_CASE` for module constants.
 
 ```bash
 python3 -m http.server 8000
-# then open http://localhost:8000/onboarding.html
+# then open http://localhost:8000/
 ```
 
 ## Notes
