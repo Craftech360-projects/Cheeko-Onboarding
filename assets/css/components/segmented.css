@@ -1,0 +1,32 @@
+/* =============================================================
+   COMPONENT / SEGMENTED CONTROL
+   Two-up switch used for Sign Up / Log In inside the auth modal.
+   ============================================================= */
+
+.segmented {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 22px;
+}
+
+.segmented__option {
+  flex: 1;
+  min-height: 46px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background var(--speed-fast),
+              color var(--speed-fast),
+              border-color var(--speed-fast);
+}
+
+.segmented__option--active {
+  color: var(--color-on-brand);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}

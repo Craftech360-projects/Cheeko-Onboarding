@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>Setup &amp; Onboarding | Cheeko Companion setup</title>
+  <meta name="description" content="Set up your Cheeko screen-free learning companion, pair with the Parent App, connect to Wi-Fi, and explore user guides and support.">
+  <meta name="theme-color" content="#FFFFFF">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@600;700;800;900&amp;family=Hanken+Grotesk:wght@400;500;600;800&amp;family=Spline+Sans+Mono:wght@500;700&amp;display=swap">
+
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script type="module" src="assets/js/main.js"></script>
+</head>
+
+<body>
+
+<!-- ============================================================
+     ANNOUNCEMENT TICKER
+     The track holds the same message twice so the -50% loop is seamless.
+     ============================================================ -->
+<div class="ticker">
+  <div class="ticker__track">
+    <span class="ticker__item">Setup &amp; Support <b>·</b> Free delivery across India <b>·</b> 6-month warranty <b>·</b> 7-day returns <b>·</b> WhatsApp us, real humans reply <b>·</b> Ships first week of September <b>·</b> </span>
+    <span class="ticker__item" aria-hidden="true">Setup &amp; Support <b>·</b> Free delivery across India <b>·</b> 6-month warranty <b>·</b> 7-day returns <b>·</b> WhatsApp us, real humans reply <b>·</b> Ships first week of September <b>·</b> </span>
+  </div>
+</div>
+
+<!-- ============================================================
+     SITE HEADER
+     ============================================================ -->
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="index.html" class="site-header__logo">
+      <img class="site-header__logo-image" src="assets/img/cheeko-logo.png" alt="Cheeko" width="631" height="242">
+    </a>
+
+    <nav class="site-nav" id="siteNav" aria-label="Cheeko navigation">
+      <div class="site-nav__track">
+        <a href="index.html"  class="site-nav__link">Buy Page</a>
+        <a href="launch.html" class="site-nav__link">Launch Offer 🎁</a>
+        <a href="cards.html"  class="site-nav__link">Card Library</a>
+        <a href="myo.html"    class="site-nav__link">Make Your Own</a>
+        <a href="onboarding.html"  class="site-nav__link site-nav__link--active" aria-current="page">Setup &amp; Support</a>
+      </div>
+    </nav>
+
+    <div class="site-header__account">
+      <button type="button" class="account-button" id="headerAccountBtn">👤 Log In</button>
+    </div>
+  </div>
+</header>
+
+<main class="container page-main">
+
+  <!-- ==========================================================
+       VIEW 1 — ONBOARDING WIZARD (signed out)
+       ========================================================== -->
+  <div id="onboardingView">
+
+    <section class="page-head">
+      <span class="eyebrow">Interactive setup</span>
+      <h1 class="page-head__title">Welcome to Cheeko. <em>Let's get you started.</em></h1>
+    </section>
+
+    <div class="wizard">
+
+      <!-- ---------- progress rail ---------- -->
+      <div class="stepper" role="group" aria-label="Setup progress">
+        <button type="button" class="stepper__dot" data-step="1" data-step-label="Download app"  aria-label="Step 1: Download app">1</button>
+        <div class="stepper__line"></div>
+        <button type="button" class="stepper__dot" data-step="2" data-step-label="Parent account" aria-label="Step 2: Parent account">2</button>
+        <div class="stepper__line"></div>
+        <button type="button" class="stepper__dot" data-step="3" data-step-label="Connect Wi-Fi"  aria-label="Step 3: Connect Wi-Fi">3</button>
+        <div class="stepper__line"></div>
+        <button type="button" class="stepper__dot" data-step="4" data-step-label="Pair device"    aria-label="Step 4: Pair device">4</button>
+        <div class="stepper__line"></div>
+        <button type="button" class="stepper__dot" data-step="5" data-step-label="Start exploring" aria-label="Step 5: Start exploring">5</button>
+      </div>
+
+      <!-- ---------- sliding steps ---------- -->
+      <div class="wizard__viewport" id="wizardViewport">
+        <div class="wizard__track" id="wizardTrack">
+
+          <!-- Step 1 — download the Parent App -->
+          <div class="wizard__panel">
+            <div class="step-card">
+              <div>
+                <h3 class="step-card__heading">
+                  <span class="step-card__eyebrow">Step 01</span>
+                  <span>Download the Parent App</span>
+                </h3>
+                <div class="store-badges">
+                  <a class="store-badges__link"
+                     href="https://apps.apple.com/in/app/cheekoai/id6748904798"
+                     target="_blank" rel="noopener noreferrer"
+                     aria-label="Download the Cheeko Parent App on the App Store">
+                    <span class="store-badges__icon" aria-hidden="true">
+                      <img src="assets/img/app-store.png" alt="" width="464" height="464">
+                    </span>
+                    <span class="store-badges__text">
+                      <span class="store-badges__caption">Download on the</span>
+                      <span class="store-badges__name">App Store</span>
+                    </span>
+                  </a>
+
+                  <a class="store-badges__link"
+                     href="https://play.google.com/store/apps/details?id=com.cheekoai.in"
+                     target="_blank" rel="noopener noreferrer"
+                     aria-label="Get the Cheeko Parent App on Google Play">
+                    <span class="store-badges__icon" aria-hidden="true">
+                      <img src="assets/img/google-play.png" alt="" width="659" height="734">
+                    </span>
+                    <span class="store-badges__text">
+                      <span class="store-badges__caption">Get it on</span>
+                      <span class="store-badges__name">Google Play</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="step-card__actions">
+                <button type="button" class="button button--primary" data-wizard-next="2">App Installed • Next Step</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 — create a parent account -->
+          <div class="wizard__panel">
+            <div class="step-card">
+              <div>
+                <h3 class="step-card__heading">
+                  <span class="step-card__eyebrow">Step 02</span>
+                  <span>Create a Parent Account</span>
+                </h3>
+                <div class="screen-showcase">
+                  <div class="screen-showcase__copy">
+                    <span class="screen-showcase__number">02</span>
+                    <h4 class="screen-showcase__title">Fill in the Parent Details</h4>
+                    <p class="screen-showcase__text">
+                      Sign in with Apple or Google and the app carries your email across. Add the parent
+                      name, mobile number and the language Cheeko should speak, then tick the consent,
+                      privacy and terms boxes. Continue lights up once all three are checked.
+                    </p>
+                  </div>
+
+                  <div class="screen-showcase__device">
+                    <img class="screen-showcase__shot"
+                         src="assets/img/screens/parent-account.png"
+                         alt="Cheeko Parent App registration screen: email, parent name, country code and phone number, language picker, and the consent, privacy, terms and updates checkboxes above a Continue button."
+                         width="620" height="1253" decoding="async">
+                    <p class="screen-showcase__caption">Parent App · Registration</p>
+                  </div>
+                </div>
+
+                <div class="step-card__confirmation is-hidden" id="stepAccountSuccess" role="status">
+                  ✓ Parent account linked successfully! Continuing...
+                </div>
+              </div>
+
+              <div class="step-card__actions">
+                <button type="button" class="button button--primary" data-wizard-next="3">Next Step</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 — connect to Wi-Fi -->
+          <div class="wizard__panel">
+            <div class="step-card">
+              <div>
+                <h3 class="step-card__heading">
+                  <span class="step-card__eyebrow">Step 03</span>
+                  <span>Connect Cheeko to Wi-Fi</span>
+                </h3>
+                <div class="screen-showcase screen-showcase--reverse">
+                  <div class="screen-showcase__copy">
+                    <span class="screen-showcase__number">03</span>
+                    <h4 class="screen-showcase__title">Pick Your Home Network</h4>
+                    <p class="screen-showcase__text">
+                      The app scans and lists every network in range with its security type. Tap your home
+                      Wi-Fi, type the password once, and Cheeko remembers it. Hit Scan Again if yours has
+                      not appeared yet.
+                    </p>
+                  </div>
+
+                  <div class="screen-showcase__device">
+                    <img class="screen-showcase__shot"
+                         src="assets/img/screens/wifi-setup.png"
+                         alt="Cheeko Parent App Select Wi-Fi screen: a scanning indicator above a list of nearby networks — Home_WiFi, JioFiber_5G, Airtel_4G, TP-Link_7D3A, Cheeko_Setup and Office_WiFi — with a Scan Again button."
+                         width="620" height="1273" decoding="async">
+                    <p class="screen-showcase__caption">Parent App · Select Wi-Fi</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step-card__actions">
+                <button type="button" class="button button--primary" data-wizard-next="4">Next Step</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 — pair the device -->
+          <div class="wizard__panel">
+            <div class="step-card">
+              <div>
+                <h3 class="step-card__heading">
+                  <span class="step-card__eyebrow">Step 04</span>
+                  <span>Pair your Device</span>
+                </h3>
+                <div class="screen-showcase">
+                  <div class="screen-showcase__copy">
+                    <span class="screen-showcase__number">04</span>
+                    <h4 class="screen-showcase__title">Run the Pre-flight Checks</h4>
+                    <p class="screen-showcase__text">
+                      Confirm the three things the app needs before it can reach the device: phone Bluetooth
+                      on, location services enabled, and Cheeko powered up. On Cheeko, go to Settings &rarr;
+                      Wi-Fi &rarr; Set up with phone to open pairing, then tap Continue.
+                    </p>
+                  </div>
+
+                  <div class="screen-showcase__device">
+                    <img class="screen-showcase__shot"
+                         src="assets/img/screens/pair-device.png"
+                         alt="Cheeko Parent App pairing screen: Ready to Bring Cheeko to Life, with confirmations for phone Bluetooth, location services and turning Cheeko on, above a Continue button."
+                         width="620" height="1256" decoding="async">
+                    <p class="screen-showcase__caption">Parent App · Pairing Checks</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step-card__actions">
+                <button type="button" class="button button--primary" data-wizard-next="5">Next Step</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 — start exploring -->
+          <div class="wizard__panel">
+            <div class="step-card">
+              <div>
+                <h3 class="step-card__heading">
+                  <span class="step-card__eyebrow">Step 05</span>
+                  <span>Start Exploring</span>
+                </h3>
+                <p class="step-card__text">You're all set. Slot a card into the top of Cheeko and it plays.</p>
+              </div>
+
+              <div class="step-card__actions">
+                <a href="cards.html" class="button button--soft">📚 Browse Card Catalog</a>
+                <button type="button" class="button button--primary" id="finishOnboardingBtn">Finish Onboarding</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       VIEW 2 — PARENT DASHBOARD (signed in)
+       ========================================================== -->
+  <div class="is-hidden" id="dashboardView">
+
+    <section class="page-head">
+      <span class="status-pill"><span class="status-pill__dot"></span> Companion connected</span>
+      <h1 id="welcomeHeading">Welcome back, Parent!</h1>
+    </section>
+
+    <div class="dashboard">
+
+      <div class="dashboard__column">
+
+        <div class="panel device-card">
+          <div class="device-card__avatar" aria-hidden="true">🦊</div>
+          <div>
+            <div class="device-card__head">
+              <h3 class="device-card__name">Cheeko Pro (Fox)</h3>
+              <span class="device-card__status">Online</span>
+            </div>
+            <p class="device-card__meta">Serial <strong>CH-2938-4820</strong> · Firmware v1.2.5 (Latest)</p>
+            <div class="device-card__stats">
+              <span>🔋 <strong>85% (Charging)</strong></span>
+              <span>📶 <strong>Cheeko-Home-5G</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel__title">🛡️ Safety Controls &amp; Sound Cap</h3>
+
+          <div class="controls">
+            <div class="controls__row">
+              <div class="controls__head">
+                <span class="controls__name">Maximum Volume Cap</span>
+                <strong class="controls__value" id="volumeCapValue">65% (Recommended)</strong>
+              </div>
+              <input type="range" id="volumeCapSlider" min="30" max="100" value="65" aria-label="Maximum volume cap">
+            </div>
+
+            <div class="controls__row controls__row--split">
+              <div class="controls__label">
+                <span>Bedtime Mode Active</span>
+                <span class="controls__note">Mutes AI conversation chat features after 8:00 PM.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" class="switch__input" id="bedtimeToggle" checked aria-label="Bedtime mode">
+                <span class="switch__track"></span>
+              </label>
+            </div>
+
+            <div class="controls__row">
+              <div class="controls__label">
+                <span>Local AI Safety Moderation</span>
+                <span class="controls__note">Filters prompts for educational topics &amp; speech correction.</span>
+              </div>
+              <select id="aiSafetySelect" aria-label="AI safety level">
+                <option value="strict">Strict Safety (Default)</option>
+                <option value="moderate">Moderate Guidance</option>
+                <option value="creative">Unrestricted Creative</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard__column">
+        <div class="panel">
+          <h3 class="panel__title">Quick Resources</h3>
+          <div class="resource-list" id="dashboardResources">
+            <button type="button" class="resource-list__item" data-tab="tutorials"><span aria-hidden="true">🎥</span> Watch Tutorials</button>
+            <button type="button" class="resource-list__item" data-tab="guide"><span aria-hidden="true">📖</span> Read User Guide</button>
+            <button type="button" class="resource-list__item" data-tab="warranty"><span aria-hidden="true">🛡️</span> Device Warranty</button>
+            <button type="button" class="resource-list__item" data-tab="support"><span aria-hidden="true">💬</span> Support Helpdesk</button>
+            <button type="button" class="resource-list__item" id="manageAccountBtn"><span aria-hidden="true">👤</span> Manage Account</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel__title">Go to Card Library</h3>
+          <div class="link-row">
+            <a href="myo.html"   class="button button--soft">🎨 Make Your Own Studio</a>
+            <a href="cards.html" class="button button--soft">📚 Browse Catalog</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       SUPPORT & DOCUMENTATION (always visible)
+       ========================================================== -->
+  <section class="support-section">
+    <h2 class="support-section__title">Support, Guides &amp; Documentation</h2>
+
+    <div class="tabs" id="infoTabs" role="tablist">
+      <button type="button" class="tabs__tab tabs__tab--active" data-tab="tutorials" role="tab" aria-selected="true" aria-controls="panel-tutorials">🎥 Tutorials</button>
+      <button type="button" class="tabs__tab" data-tab="warranty" role="tab" aria-selected="false" aria-controls="panel-warranty">🛡️ Warranty</button>
+      <button type="button" class="tabs__tab" data-tab="guide" role="tab" aria-selected="false" aria-controls="panel-guide">📖 User Guide</button>
+      <button type="button" class="tabs__tab" data-tab="faq" role="tab" aria-selected="false" aria-controls="panel-faq">❓ FAQ</button>
+      <button type="button" class="tabs__tab" data-tab="support" role="tab" aria-selected="false" aria-controls="panel-support">💬 Contact Support</button>
+    </div>
+
+    <div class="tabs__panels">
+
+      <!-- Tutorials -->
+      <div class="tab-panel" id="panel-tutorials" role="tabpanel">
+        <h3 class="tab-panel__title">Step-by-Step Video Guides</h3>
+        <div class="video-grid">
+          <button type="button" class="video-card" data-video="wifi">
+            <span class="video-card__icon" aria-hidden="true">📶</span>
+            <span class="video-card__title">Wi-Fi Setup Guide</span>
+            <span class="video-card__duration">1:30 mins</span>
+          </button>
+          <button type="button" class="video-card" data-video="pairing">
+            <span class="video-card__icon" aria-hidden="true">🔗</span>
+            <span class="video-card__title">Phone Pairing Guide</span>
+            <span class="video-card__duration">2:05 mins</span>
+          </button>
+          <button type="button" class="video-card" data-video="explore">
+            <span class="video-card__icon" aria-hidden="true">🦊</span>
+            <span class="video-card__title">How to Play Cards</span>
+            <span class="video-card__duration">1:45 mins</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Warranty -->
+      <div class="tab-panel is-hidden" id="panel-warranty" role="tabpanel">
+        <h3 class="tab-panel__title">Warranty &amp; Device Registration</h3>
+        <p class="tab-panel__lede"><strong>1-Year Limited Manufacturer Warranty</strong> on materials and hardware defects.</p>
+
+        <h4 class="tab-panel__subtitle">Register Your Warranty</h4>
+        <form class="form" id="warrantyForm" data-success-message="warrantySuccess">
+          <div>
+            <label for="warrantySerial">Serial Number (found under device)</label>
+            <input type="text" id="warrantySerial" placeholder="CH-XXXX-XXXX" required>
+          </div>
+          <div>
+            <label for="warrantyDate">Purchase Date</label>
+            <input type="date" id="warrantyDate" required>
+          </div>
+          <button type="submit" class="button button--primary">Register Device</button>
+        </form>
+        <div class="form-success is-hidden" id="warrantySuccess" role="status">🎉 Device successfully registered for 1-year warranty coverage!</div>
+      </div>
+
+      <!-- User guide -->
+      <div class="tab-panel is-hidden" id="panel-guide" role="tabpanel">
+        <h3 class="tab-panel__title">Device User Guide</h3>
+        <div class="spec-grid">
+          <div>
+            <h4 class="tab-panel__subtitle">Hardware Diagram</h4>
+            <ul class="spec-list">
+              <li class="spec-list__item"><span><strong>Orange Ear Buttons:</strong> Twist left ear to adjust volume. Twist right ear to skip track list. Press both ears to enter Wi-Fi mode.</span></li>
+              <li class="spec-list__item"><span><strong>Card Slot:</strong> Vertically slot cards facing forwards to immediately play. Remove card to pause.</span></li>
+              <li class="spec-list__item"><span><strong>USB-C Dock:</strong> Charge by setting Cheeko onto the circular magnetic charging dock base.</span></li>
+              <li class="spec-list__item"><span><strong>Headphone Jack:</strong> Standard 3.5mm jack on the rear for quiet playback.</span></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="tab-panel__subtitle">LED Indicators</h4>
+            <ul class="spec-list">
+              <li class="spec-list__item"><span><strong>Pulsing Blue Eyes:</strong> Device is currently downloading cards or syncing.</span></li>
+              <li class="spec-list__item"><span><strong>Solid White Eyes:</strong> Cheeko is active and ready.</span></li>
+              <li class="spec-list__item"><span><strong>Soft Green Eyes:</strong> AI assistant mic is listening to child replies.</span></li>
+              <li class="spec-list__item"><span><strong>Pulsing Red Eyes:</strong> Low battery warning (below 15%).</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="tab-panel is-hidden" id="panel-faq" role="tabpanel">
+        <h3 class="tab-panel__title">Frequently Asked Questions</h3>
+        <div class="accordion">
+          <div class="accordion__item">
+            <div class="accordion__question" role="button" tabindex="0" aria-expanded="false">
+              <span>Is Cheeko completely screen-free?</span>
+              <span class="accordion__marker" aria-hidden="true">▼</span>
+            </div>
+            <p class="accordion__answer is-hidden">Yes! Cheeko features zero LED screens. Feedback is given through friendly voice prompts, spatial audio soundscapes, and soft light pulses in the device's ears.</p>
+          </div>
+          <div class="accordion__item">
+            <div class="accordion__question" role="button" tabindex="0" aria-expanded="false">
+              <span>Do the audio cards need a Wi-Fi connection to play?</span>
+              <span class="accordion__marker" aria-hidden="true">▼</span>
+            </div>
+            <p class="accordion__answer is-hidden">No, once standard card audio files have synced to Cheeko, they store directly on the device memory (8GB storage) and play offline completely. Only AI conversation sessions require a network link.</p>
+          </div>
+          <div class="accordion__item">
+            <div class="accordion__question" role="button" tabindex="0" aria-expanded="false">
+              <span>What ages is Cheeko suitable for?</span>
+              <span class="accordion__marker" aria-hidden="true">▼</span>
+            </div>
+            <p class="accordion__answer is-hidden">Cheeko is designed for kids aged 2 to 10. Our card catalog divides ranges into Ages 0-2, 3-5, 6-8, and 9+ with age-appropriate storylines, cognitive math puzzles, and mentor dialogues.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact support -->
+      <div class="tab-panel is-hidden" id="panel-support" role="tabpanel">
+        <h3 class="tab-panel__title">Contact Cheeko Support</h3>
+        <p class="tab-panel__lede">We reply within 24 hours.</p>
+
+        <form class="form" id="supportForm" data-success-message="supportSuccess">
+          <div class="form__row">
+            <div>
+              <label for="supportName">Full Name</label>
+              <input type="text" id="supportName" required>
+            </div>
+            <div>
+              <label for="supportEmail">Email Address</label>
+              <input type="email" id="supportEmail" required>
+            </div>
+          </div>
+          <div>
+            <label for="supportCategory">Issue Category</label>
+            <select id="supportCategory">
+              <option value="setup">Device Onboarding &amp; Wi-Fi</option>
+              <option value="pairing">App Pairing / Account link</option>
+              <option value="cards">Card playback &amp; AI packages</option>
+              <option value="shipping">Shipping &amp; Orders</option>
+              <option value="other">Other Queries</option>
+            </select>
+          </div>
+          <div>
+            <label for="supportMessage">Describe the issue</label>
+            <textarea id="supportMessage" rows="4" required></textarea>
+          </div>
+          <button type="submit" class="button button--primary">Submit Support Request</button>
+        </form>
+        <div class="form-success is-hidden" id="supportSuccess" role="status">💌 Support request submitted! Ticket ID #CK-2849. We will contact you soon.</div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+<div class="modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+  <div class="modal__dialog">
+    <div class="modal__header">
+      <span class="modal__title" id="authModalTitle">Create Account</span>
+      <button type="button" class="modal__close" data-modal-close aria-label="Close">&times;</button>
+    </div>
+    <div class="modal__body">
+      <div class="segmented">
+        <button type="button" class="segmented__option segmented__option--active" id="authSignupTab">Sign Up</button>
+        <button type="button" class="segmented__option" id="authLoginTab">Log In</button>
+      </div>
+      <form class="form" id="authForm">
+        <div id="authNameField">
+          <label for="authNameInput">Parent Full Name</label>
+          <input type="text" id="authNameInput" required>
+        </div>
+        <div>
+          <label for="authEmailInput">Email Address</label>
+          <input type="email" id="authEmailInput" required>
+        </div>
+        <div>
+          <label for="authPasswordInput">Password</label>
+          <input type="password" id="authPasswordInput" required>
+        </div>
+        <button type="submit" class="button button--primary" id="authSubmitBtn">Create Account</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+  <div class="modal__dialog">
+    <div class="modal__header">
+      <span class="modal__title" id="accountModalTitle">👤 Manage Account</span>
+      <button type="button" class="modal__close" data-modal-close aria-label="Close">&times;</button>
+    </div>
+    <div class="modal__body">
+      <div class="detail-block">
+        <h4 class="detail-block__title">Parent Account Details</h4>
+        <p>Name: <strong id="profileName">N/A</strong></p>
+        <p>Email: <strong id="profileEmail">N/A</strong></p>
+        <p>Subscription: <strong>Cheeko Pro Plus</strong></p>
+      </div>
+      <div class="detail-block">
+        <h4 class="detail-block__title">Paired Devices</h4>
+        <p><span class="detail-block__dot" aria-hidden="true">●</span> <strong>Cheeko Pro Fox (Active)</strong></p>
+      </div>
+      <button type="button" class="button button--primary button--danger button--block" id="logoutBtn">🚪 Log Out Account</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="videoModal" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
+  <div class="modal__dialog">
+    <div class="modal__header">
+      <span class="modal__title" id="videoModalTitle">Wi-Fi Connection Tutorial</span>
+      <button type="button" class="modal__close" data-modal-close aria-label="Close">&times;</button>
+    </div>
+    <div class="video-stage">
+      <span class="video-stage__icon" id="videoStageIcon" aria-hidden="true">📶</span>
+      <h4 class="video-stage__title" id="videoStageTitle">Connecting Wi-Fi</h4>
+      <p class="video-stage__caption" id="videoStageCaption">Pressing both buttons and configuring network settings...</p>
+      <span class="video-stage__tag">▶ Simulated video playing</span>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <span>© 2026 Cheeko Toys, Inc. All rights reserved.</span>
+    <span><a href="mailto:hello@altio.me">hello@altio.me</a> · Made in India</span>
+  </div>
+</footer>
+
+</body>
+</html>

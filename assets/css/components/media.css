@@ -1,0 +1,99 @@
+/* =============================================================
+   COMPONENT / MEDIA
+   Video tutorial cards and the simulated player stage.
+   ============================================================= */
+
+/* ---------- video cards ---------- */
+.video-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.video-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  padding: 20px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform var(--speed-fast) ease, box-shadow var(--speed-fast) ease;
+}
+
+.video-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.video-card__icon  { font-size: 26px; }
+
+.video-card__title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.video-card__duration {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+/* ---------- simulated player stage ---------- */
+.video-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 270px;
+  padding: 52px 24px;
+  text-align: center;
+  color: var(--color-on-dark);
+  background: var(--color-ink);
+}
+
+.video-stage__icon {
+  font-size: 52px;
+  animation: stage-pulse 2s ease-in-out infinite;
+}
+
+.video-stage__title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-on-dark);
+}
+
+.video-stage__caption {
+  max-width: 36ch;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 246, 232, .7);
+}
+
+.video-stage__tag {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+@keyframes stage-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1;   }
+  50%      { transform: scale(1.07); opacity: .75; }
+}
+
+@media (min-width: 600px) {
+  .video-grid { grid-template-columns: repeat(3, 1fr); }
+}

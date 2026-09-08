@@ -1,0 +1,22 @@
+/* =============================================================
+   BASE / UTILITIES
+   A deliberately tiny set. `is-*` classes are toggled by JavaScript;
+   everything else is authored in the markup.
+   ============================================================= */
+
+/* Hide from sight, keep for screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* JS visibility switch. Lets each component keep its natural display
+   value (flex, grid, block) instead of JS hard-coding one. */
+.is-hidden { display: none !important; }
+
+/* Set on <body> while a modal is open so the page behind cannot scroll. */
+.is-modal-open { overflow: hidden; }

@@ -1,0 +1,91 @@
+/* =============================================================
+   COMPONENT / MODAL
+   Bottom sheet on mobile, centred dialog from 600px up.
+   Visibility is driven by the .modal--open modifier from JS.
+   ============================================================= */
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(35, 26, 16, .42);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.modal--open { display: flex; }
+
+.modal__dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 92vh;
+  background: var(--color-paper);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-lg);
+  animation: modal-sheet-in .3s var(--ease-out);
+}
+
+.modal__header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.modal__title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.modal__close {
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-muted);
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--speed-fast), color var(--speed-fast);
+}
+
+.modal__close:hover {
+  color: var(--color-ink);
+  background: var(--color-soft);
+}
+
+.modal__body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+}
+
+@keyframes modal-sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: none; }
+}
+
+@keyframes modal-pop-in {
+  from { transform: scale(.97); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+@media (min-width: 600px) {
+  .modal { align-items: center; padding: 24px; }
+
+  .modal__dialog {
+    max-width: 540px;
+    border-radius: var(--radius-lg);
+    animation: modal-pop-in .26s var(--ease-out);
+  }
+}

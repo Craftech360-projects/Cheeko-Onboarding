@@ -1,0 +1,84 @@
+/* =============================================================
+   COMPONENT / STORE BADGES
+   App Store + Google Play download buttons for the Cheeko Parent App.
+   Stacks on mobile, sits side by side from 600px up.
+   ============================================================= */
+
+.store-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.store-badges__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 10px 18px;
+  color: var(--color-on-dark);
+  background: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--speed-fast) ease,
+              box-shadow var(--speed-fast) ease;
+}
+
+.store-badges__link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.store-badges__link:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+}
+
+/* Fixed square so the App Store icon and the Play triangle leave their
+   captions on the same left edge, whatever ratio each logo file has. */
+.store-badges__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+}
+
+/* Scale to fit the box without distorting: the square App Store icon
+   fills it, the taller Play triangle fits by height. */
+.store-badges__icon img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.store-badges__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.store-badges__caption {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: rgba(255, 246, 232, .68);
+}
+
+.store-badges__name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+
+@media (min-width: 600px) {
+  .store-badges { flex-direction: row; }
+  .store-badges__link { flex: 1; }
+}

@@ -1,0 +1,163 @@
+/* =============================================================
+   PAGE / DASHBOARD
+   The signed-in parent view: device summary card and safety controls.
+   ============================================================= */
+
+.dashboard {
+  display: grid;
+  gap: 20px;
+  margin-bottom: var(--space-section);
+}
+
+.dashboard__column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- device card ---------- */
+.device-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  color: var(--color-on-dark);
+  background: var(--color-ink);
+  border: none;
+}
+
+.device-card__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  font-size: 28px;
+  background: rgba(255, 246, 232, .1);
+  border-radius: var(--radius-md);
+}
+
+.device-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.device-card__name {
+  font-size: 20px;
+  color: var(--color-on-dark);
+}
+
+.device-card__status {
+  padding: 3px 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+}
+
+.device-card__meta {
+  margin-top: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 246, 232, .72);
+}
+
+.device-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin-top: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 246, 232, .72);
+}
+
+.device-card__meta strong,
+.device-card__stats strong {
+  color: var(--color-on-dark);
+  font-weight: 700;
+}
+
+/* ---------- safety controls ---------- */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.controls__row {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.controls__row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* Label on the left, control on the right. */
+.controls__row--split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.controls__row--split > .controls__label { flex: 1; }
+
+.controls__row--split select {
+  flex: none;
+  width: auto;
+  min-width: 170px;
+}
+
+.controls__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.controls__name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.controls__value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-brand-deep);
+}
+
+/* Applied by JS when the volume cap passes the recommended ceiling. */
+.controls__value--warning { color: var(--color-warning); }
+
+.controls__label {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.controls__label:last-child { margin-bottom: 0; }
+
+.controls__note {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1.25fr .75fr;
+    align-items: start;
+  }
+}

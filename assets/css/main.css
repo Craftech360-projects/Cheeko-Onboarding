@@ -1,0 +1,47 @@
+/* =============================================================
+   CHEEKO — SETUP & ONBOARDING
+   Single stylesheet entry point.
+
+   Import order is the cascade order, so it matters:
+     1. base       resets and tokens — no components depend on order
+     2. layout     page shell: header, footer, container
+     3. components reusable blocks, alphabetical
+     4. pages      view-specific composition, may override components
+
+   Naming: BEM — .block, .block__element, .block--modifier.
+   State classes toggled by JavaScript use the `is-` prefix
+   (.is-hidden, .is-modal-open) or a BEM modifier (.modal--open).
+   Media queries live beside the rules they modify, mobile-first.
+   ============================================================= */
+
+/* 1. base */
+@import url("base/tokens.css");
+@import url("base/reset.css");
+@import url("base/typography.css");
+@import url("base/utilities.css");
+
+/* 2. layout */
+@import url("layout/page.css");
+@import url("layout/ticker.css");
+@import url("layout/site-header.css");
+@import url("layout/site-footer.css");
+
+/* 3. components */
+@import url("components/accordion.css");
+@import url("components/button.css");
+@import url("components/form.css");
+@import url("components/lists.css");
+@import url("components/media.css");
+@import url("components/modal.css");
+@import url("components/panel.css");
+@import url("components/phone.css");
+@import url("components/screen-showcase.css");
+@import url("components/segmented.css");
+@import url("components/store-badges.css");
+@import url("components/switch.css");
+@import url("components/tabs.css");
+
+/* 4. pages */
+@import url("pages/onboarding.css");
+@import url("pages/dashboard.css");
+@import url("pages/support.css");

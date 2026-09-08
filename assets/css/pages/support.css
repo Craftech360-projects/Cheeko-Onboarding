@@ -1,0 +1,15 @@
+/* =============================================================
+   PAGE / SUPPORT
+   The always-visible documentation section below the wizard/dashboard.
+   ============================================================= */
+
+.support-section {
+  margin-top: var(--space-section);
+  padding-top: var(--space-section);
+  border-top: 1px solid var(--color-line);
+}
+
+.support-section__title {
+  max-width: 16ch;
+  margin-bottom: 24px;
+}

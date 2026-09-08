@@ -1,0 +1,92 @@
+/* =============================================================
+   COMPONENT / BUTTON
+   One block, four modifiers. Works on <button> and <a> alike.
+     .button--primary  solid brand, the main action in a view
+     .button--soft     light pill, secondary actions and links
+     .button--outline  inked outline, used inside tinted panels
+     .button--danger   destructive (log out)
+     .button--block    full width
+   ============================================================= */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform var(--speed-fast) ease,
+              box-shadow var(--speed-fast) ease,
+              background var(--speed-fast),
+              color var(--speed-fast);
+}
+
+.button:active   { transform: translateY(0); }
+.button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.button:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+}
+
+/* ---------- primary ---------- */
+.button--primary {
+  min-height: 52px;
+  padding: 15px 30px;
+  font-size: 16px;
+  color: var(--color-on-brand);
+  background: var(--color-brand);
+  box-shadow: var(--shadow-brand);
+}
+
+.button--primary:hover {
+  transform: translateY(-2px);
+  background: var(--color-brand-dark);
+  box-shadow: 0 14px 30px rgba(240, 82, 29, .38);
+}
+
+/* ---------- soft ---------- */
+.button--soft {
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: 14px;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-line);
+  box-shadow: var(--shadow-xs);
+}
+
+.button--soft:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- outline ---------- */
+.button--outline {
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 2px solid var(--color-ink);
+  box-shadow: none;
+}
+
+.button--outline:hover {
+  color: var(--color-on-brand);
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  box-shadow: none;
+}
+
+/* ---------- danger ---------- */
+.button--danger {
+  color: var(--color-on-brand);
+  background: var(--color-danger);
+  box-shadow: 0 10px 24px rgba(179, 38, 30, .28);
+}
+
+.button--danger:hover { background: var(--color-danger-dark); }
+
+/* ---------- width ---------- */
+.button--block { width: 100%; }

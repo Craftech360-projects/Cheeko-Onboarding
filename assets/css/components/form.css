@@ -1,0 +1,99 @@
+/* =============================================================
+   COMPONENT / FORM
+   Field styling plus the two layout primitives the page uses:
+   .form (vertical stack) and .form__row (side-by-side from 600px).
+   ============================================================= */
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 13px 15px;
+  font-family: var(--font-body);
+  font-size: 16px;          /* 16px keeps iOS from zooming on focus */
+  font-weight: 500;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--speed-fast), box-shadow var(--speed-fast);
+}
+
+textarea {
+  min-height: 112px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder { color: var(--color-placeholder); }
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 4px rgba(240, 82, 29, .13);
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 44px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-ink) 50%),
+    linear-gradient(135deg, var(--color-ink) 50%, transparent 50%);
+  background-position: calc(100% - 21px) 53%, calc(100% - 15px) 53%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 26px;
+  background: transparent;
+  accent-color: var(--color-brand);
+  cursor: pointer;
+}
+
+/* ---------- layout ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form__row {
+  display: grid;
+  gap: 16px;
+}
+
+/* Confirmation banner shown after a form is submitted. */
+.form-success {
+  margin-top: 16px;
+  padding: 16px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--color-on-brand);
+  background: var(--color-success);
+  border-radius: var(--radius-md);
+}
+
+@media (min-width: 600px) {
+  .form__row { grid-template-columns: 1fr 1fr; }
+}

@@ -1,0 +1,67 @@
+/* =============================================================
+   BASE / TOKENS
+   Single source of truth for colour, type, spacing and elevation.
+   Values mirror the live site (cheekoai.in — assets/css/premium.css);
+   only the token *names* were made semantic. Never hard-code a value
+   in a component file — add or reuse a token here instead.
+   ============================================================= */
+
+:root {
+  /* --- brand palette --- */
+  --color-brand:        #F0521D;
+  --color-brand-dark:   #C93E0F;
+  --color-brand-deep:   #A33006;
+  --color-accent:       #FFC81A;
+
+  /* --- surfaces --- */
+  --color-paper:        #FFFFFF;   /* page background          */
+  --color-surface:      #FFFFFF;   /* raised cards and panels  */
+  --color-soft:         #F7F1E6;   /* inset / recessed blocks  */
+  --color-tint:         #FFF4E3;   /* warm highlight blocks    */
+  --color-line:         #EDE4D6;   /* hairline borders         */
+
+  /* --- text --- */
+  --color-ink:          #231A10;   /* headings, primary text   */
+  --color-text-muted:   #6B5F4E;   /* body copy                */
+  --color-muted:        #7A6E5D;   /* de-emphasised labels     */
+  --color-ticker-text:  #8A5A1E;   /* announcement bar text    */
+  --color-on-dark:      #FFF6E8;   /* text on --color-ink      */
+  --color-on-brand:     #FFFFFF;
+  --color-placeholder:  #A2988A;
+
+  /* --- status --- */
+  --color-success:      #2F6B4F;
+  --color-danger:       #B3261E;
+  --color-danger-dark:  #8F1D17;
+  --color-warning:      #C62828;
+
+  /* --- typography --- */
+  --font-display: "Gabarito", "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    "Spline Sans Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* --- elevation --- */
+  --shadow-xs:    0 2px  8px rgba(35, 26, 16, .05);
+  --shadow-sm:    0 8px 22px rgba(35, 26, 16, .10);
+  --shadow-lg:    0 18px 44px rgba(35, 26, 16, .13);
+  --shadow-brand: 0 10px 24px rgba(240, 82, 29, .32);
+
+  /* --- radii --- */
+  --radius-sm:   14px;
+  --radius-md:   16px;
+  --radius-lg:   22px;
+  --radius-pill: 99px;
+
+  /* --- spacing --- */
+  --space-gutter:  20px;                       /* horizontal page padding */
+  --space-section: clamp(44px, 9vw, 76px);     /* vertical section rhythm */
+
+  /* --- motion --- */
+  --ease-out:  cubic-bezier(.22, 1, .36, 1);
+  --speed-fast: .15s;
+  --speed-base: .25s;
+}
+
+@media (min-width: 600px) {
+  :root { --space-gutter: 24px; }
+}

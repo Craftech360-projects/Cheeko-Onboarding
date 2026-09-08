@@ -1,0 +1,84 @@
+/* =============================================================
+   COMPONENT / LISTS
+   The recurring list and grid shapes: spec lists in the user guide,
+   resource list, link row.
+   ============================================================= */
+
+/* ---------- spec list (hardware / LED reference) ---------- */
+.spec-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.spec-list__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.spec-list__item:last-child { border-bottom: 0; }
+
+.spec-list__item::before {
+  content: "→";
+  font-weight: 700;
+  color: var(--color-brand-deep);
+}
+
+.spec-list__item strong {
+  color: var(--color-ink);
+  font-weight: 800;
+}
+
+/* ---------- resource list (dashboard shortcuts) ---------- */
+.resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.resource-list__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 13px 16px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  text-align: left;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: transform var(--speed-fast) ease, box-shadow var(--speed-fast) ease;
+}
+
+.resource-list__item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- link row ---------- */
+.link-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.link-row .button { width: 100%; }
+
+@media (min-width: 600px) {
+  .spec-grid    { grid-template-columns: 1fr 1fr; }
+  .link-row     { flex-direction: row; }
+  .link-row .button { flex: 1; width: auto; }
+}

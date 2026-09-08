@@ -1,0 +1,215 @@
+/* =============================================================
+   PAGE / ONBOARDING
+   The five-step setup wizard: stepper rail, sliding track and step cards.
+   Mobile: stepper on top, horizontal dots.
+   Desktop (900px+): sticky vertical rail beside the card.
+   ============================================================= */
+
+.wizard { display: block; }
+
+/* ---------- stepper ---------- */
+.stepper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.stepper__dot {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-line);
+  border-radius: 50%;
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: background var(--speed-base), color var(--speed-base),
+              border-color var(--speed-base), box-shadow var(--speed-base);
+}
+
+/* Invisible 48px hit area — the dot itself is below the touch minimum. */
+.stepper__dot::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+}
+
+.stepper__dot--active {
+  color: var(--color-on-brand);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-brand);
+}
+
+.stepper__dot--complete {
+  font-size: 0;                       /* hide the number, show the tick */
+  color: var(--color-on-brand);
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.stepper__dot--complete::after {
+  content: "✓";
+  font-size: 15px;
+}
+
+.stepper__line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-line);
+  border-radius: 2px;
+  transition: background .3s;
+}
+
+.stepper__line--complete { background: var(--color-success); }
+
+/* ---------- sliding track ----------
+   SLIDE_MS in onboarding-wizard.js matches --wizard-slide: the script
+   waits out the slide before easing the viewport onto a shorter card.
+   Keep the two in step. */
+.wizard {
+  --wizard-slide: .5s;
+  --wizard-settle: .32s;
+}
+
+.wizard__viewport {
+  overflow: hidden;
+  transition: height var(--wizard-settle) var(--ease-out);
+}
+
+/* Every height change except that settle is the page correcting its own
+   measurements — a first paint, a font landing, a step confirming — and
+   animating those reads as a glitch. JS drops the transition for them. */
+.wizard__viewport--instant { transition: none; }
+
+.wizard__track {
+  display: flex;
+  width: 500%;                        /* five panels, 100% each */
+  transition: transform var(--wizard-slide) var(--ease-out);
+}
+
+.wizard__panel {
+  width: 20%;                         /* 100% / 5 panels */
+  align-self: flex-start;
+  padding: 6px 4px 14px;
+}
+
+/* ---------- step card ---------- */
+.step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 26px 22px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.step-card__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step-card__eyebrow {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--color-brand-deep);
+}
+
+.step-card__text {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.step-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-card__actions .button { width: 100%; }
+
+.step-card__confirmation {
+  margin-top: 20px;
+  padding: 13px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-on-brand);
+  background: var(--color-success);
+  border-radius: var(--radius-sm);
+}
+
+@media (min-width: 600px) {
+  .step-card { padding: 32px; }
+
+  .step-card__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .step-card__actions .button { width: auto; }
+}
+
+@media (min-width: 900px) {
+  .wizard {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 52px;
+    align-items: start;
+  }
+
+  .stepper {
+    position: sticky;
+    top: 104px;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0;
+  }
+
+  .stepper__line {
+    flex: none;
+    width: 2px;
+    height: 32px;
+    margin-left: 18px;
+  }
+
+  /* On desktop the pseudo-element becomes the step label instead of
+     the touch target — pointer users don't need the padding. */
+  .stepper__dot::before {
+    content: attr(data-step-label);
+    left: 54px;
+    top: 50%;
+    width: auto;
+    height: auto;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--color-muted);
+  }
+
+  .stepper__dot--active::before   { color: var(--color-ink); }
+  .stepper__dot--complete::before { color: var(--color-text-muted); }
+
+  .step-card { padding: 36px; }
+}
