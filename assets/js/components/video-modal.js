@@ -8,6 +8,12 @@
 import { byId, qsa } from "../core/dom.js";
 import { openModal } from "./modal.js";
 
+// The tutorial videos are not recorded yet, so the cards are deliberately
+// inert: clicking one does nothing. Flip this to true to wire the player
+// back up — the modal, its markup and the TUTORIALS copy below all stay
+// ready for that.
+const PLAYER_ENABLED = false;
+
 const TUTORIALS = {
   wifi: {
     modalTitle: "Wi-Fi Connection Tutorial",
@@ -21,15 +27,35 @@ const TUTORIALS = {
     title: "Phone Pairing Guide",
     caption: "Linking phone Bluetooth to Cheeko and assigning child profile guidelines.",
   },
+  "custom-card": {
+    modalTitle: "Custom Card Tutorial",
+    icon: "🎨",
+    title: "Add a Custom Card",
+    caption: "Create a card in the Studio, write it to a blank card, and slot it into Cheeko.",
+  },
   explore: {
     modalTitle: "Exploring Story Cards Tutorial",
     icon: "🦊",
     title: "How to Play Cards",
     caption: "Slot card vertically, wait for LED verification, and loop story offline.",
   },
+  "kid-profile": {
+    modalTitle: "Kid Profile Tutorial",
+    icon: "🧒",
+    title: "Setup a New Kid Profile",
+    caption: "Add a child in the companion app, set their age band, and pick safety limits.",
+  },
+  "remove-toy": {
+    modalTitle: "Removing a Toy Tutorial",
+    icon: "🔌",
+    title: "Remove a Toy",
+    caption: "Unpair Cheeko from the parent account and clear it for a new household.",
+  },
 };
 
 export function initVideoModal() {
+  if (!PLAYER_ENABLED) return;
+
   const modal = byId("videoModal");
   if (!modal) return;
 

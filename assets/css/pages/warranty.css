@@ -1,0 +1,41 @@
+/* =============================================================
+   PAGE / WARRANTY
+   The standalone registration section between the dashboard and the
+   documentation tabs. Shares the support section's divider rhythm so
+   the two read as sibling blocks.
+   ============================================================= */
+
+.warranty-section {
+  margin-top: var(--space-section);
+  padding-top: var(--space-section);
+  border-top: 1px solid var(--color-line);
+}
+
+.warranty-section__title {
+  max-width: 18ch;
+  margin-bottom: 10px;
+}
+
+.warranty-section__lede {
+  max-width: 62ch;
+  margin-bottom: 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.warranty-section__card {
+  padding: 26px 22px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.warranty-section__subtitle {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+@media (min-width: 600px) { .warranty-section__card { padding: 26px 28px; } }
+@media (min-width: 900px) { .warranty-section__card { padding: 34px; } }

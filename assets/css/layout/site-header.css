@@ -1,7 +1,7 @@
 /* =============================================================
    LAYOUT / SITE HEADER
-   Mobile: logo + account button on row one, a horizontally scrollable
-   nav strip on row two. Desktop (900px+): a single row.
+   A single row at every width: the Cheeko logo on the left, the
+   account button on the right.
    ============================================================= */
 
 .site-header {
@@ -15,74 +15,21 @@
 }
 
 .site-header__inner {
-  display: grid;
+  display: flex;
   align-items: center;
-  grid-template-columns: auto 1fr;
-  grid-template-areas:
-    "logo profile"
-    "nav  nav";
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 60px;
 }
 
 .site-header__logo {
-  grid-area: logo;
   display: flex;
   align-items: center;
-  min-height: 52px;
 }
 
 .site-header__logo-image {
   width: auto;
   height: 32px;
-}
-
-.site-header__account {
-  grid-area: profile;
-  justify-self: end;
-}
-
-/* ---------- nav strip ---------- */
-.site-nav {
-  grid-area: nav;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  margin-inline: calc(var(--space-gutter) * -1);
-  border-top: 1px solid var(--color-line);
-}
-
-.site-nav::-webkit-scrollbar { display: none; }
-
-.site-nav__track {
-  display: flex;
-  width: max-content;
-  min-width: 100%;
-  padding-inline: var(--space-gutter);
-}
-
-.site-nav__link {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  min-height: 46px;
-  padding: 10px 13px;
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 700;
-  white-space: nowrap;
-  color: var(--color-muted);
-  border-bottom: 2px solid transparent;
-  transition: color var(--speed-fast);
-}
-
-.site-nav__link:first-child { padding-left: 0; }
-.site-nav__link:hover       { color: var(--color-brand-dark); }
-
-.site-nav__link--active {
-  color: var(--color-ink);
-  border-bottom-color: var(--color-brand);
 }
 
 /* ---------- account button ---------- */
@@ -92,7 +39,7 @@
   justify-content: center;
   gap: 7px;
   min-height: 44px;
-  padding: 10px 18px;
+  padding: 10px 22px;
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 800;
@@ -115,28 +62,6 @@
 }
 
 @media (min-width: 900px) {
-  .site-header__inner {
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas: "logo nav profile";
-    column-gap: 22px;
-    min-height: 68px;
-  }
-
-  .site-header__logo { min-height: auto; }
+  .site-header__inner { min-height: 68px; }
   .site-header__logo-image { height: 36px; }
-
-  .site-nav {
-    overflow: visible;
-    margin-inline: 0;
-    border-top: 0;
-  }
-
-  .site-nav__track {
-    width: auto;
-    min-width: 0;
-    padding-inline: 0;
-    gap: 24px;
-  }
-
-  .site-nav__link { min-height: 44px; padding: 8px 0; }
 }

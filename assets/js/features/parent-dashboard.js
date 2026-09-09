@@ -28,6 +28,13 @@ export function initParentDashboard({ activateTab, openAccountModal } = {}) {
     });
   });
 
+  // Shortcuts to a whole section (warranty) rather than a support tab.
+  qsa("#dashboardResources [data-scroll-to]").forEach((button) => {
+    button.addEventListener("click", () => {
+      byId(button.dataset.scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
   const manageAccountButton = byId("manageAccountBtn");
   if (manageAccountButton && openAccountModal) {
     manageAccountButton.addEventListener("click", openAccountModal);

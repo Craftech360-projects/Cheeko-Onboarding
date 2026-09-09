@@ -1,0 +1,206 @@
+/* =============================================================
+   COMPONENT / AUTH CARD
+   The sign-in / sign-up dialog. A compact centred card at every
+   width (it is short enough not to need the bottom-sheet
+   treatment the other modals use), with one Google entry point,
+   a piece of Cheeko artwork and a footer that flips the mode.
+
+   The `.auth-card--signup` modifier only retints the artwork —
+   both modes share the same layout.
+   ============================================================= */
+
+/* `components/modal.css` imports after this file, so the shared
+   `.modal` / `.modal__dialog` rules would win on source order alone.
+   Both selectors below are deliberately two classes deep to outrank
+   them without touching the alphabetical import order. */
+.modal.modal--auth {
+  align-items: center;
+  padding: 20px;
+}
+
+.modal--auth .auth-card {
+  position: relative;
+  align-items: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 420px;
+  max-height: 92vh;
+  padding: 30px 26px 20px;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  animation: modal-pop-in .26s var(--ease-out);
+}
+
+.auth-card__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  font-size: 27px;
+  line-height: 1;
+  color: var(--color-muted);
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--speed-fast), color var(--speed-fast);
+}
+
+.auth-card__close:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.auth-card__close:hover {
+  color: var(--color-ink);
+  background: var(--color-soft);
+}
+
+.auth-card__title {
+  margin: 8px 0 22px;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--color-ink);
+}
+
+/* ---------- Google entry point ---------- */
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 20px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--speed-fast),
+              box-shadow var(--speed-fast) ease,
+              transform var(--speed-fast) ease;
+}
+
+.google-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-sm);
+}
+
+.google-button:active { transform: none; }
+
+.google-button:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+}
+
+.google-button__icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+
+/* Sign-in failures. Sits under the Google button so the eye lands on
+   it without the card jumping. */
+.auth-card__error {
+  width: 100%;
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--color-danger-dark);
+  background: #FDEDEC;
+  border: 1.5px solid #F5C6C3;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- artwork ----------
+   A square stage with a soft tinted disc behind the fox — yellow for
+   sign in, pink for sign up, matching the mascot's two poses. */
+.auth-card__art {
+  position: relative;
+  width: 100%;
+  max-width: 268px;
+  aspect-ratio: 1;
+  margin: 14px 0 6px;
+}
+
+.auth-card__art::before {
+  content: "";
+  position: absolute;
+  inset: 11%;
+  border-radius: 50%;
+  background: #FDEBC2;
+}
+
+.auth-card--signup .auth-card__art::before { background: #FADCDC; }
+
+.auth-card__art-fox {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.auth-card__art-fox--signup { display: none; }
+.auth-card--signup .auth-card__art-fox--signin { display: none; }
+.auth-card--signup .auth-card__art-fox--signup { display: block; }
+
+/* ---------- mode switch ---------- */
+.auth-card__switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding-top: 16px;
+  font-size: 15px;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-line);
+}
+
+.auth-card__switch-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 2px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-brand);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color var(--speed-fast);
+}
+
+.auth-card__switch-link:hover { color: var(--color-brand-dark); }
+
+.auth-card__switch-link:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.auth-card__switch-arrow {
+  transition: transform var(--speed-fast) ease;
+}
+
+.auth-card__switch-link:hover .auth-card__switch-arrow {
+  transform: translateX(3px);
+}
+
+@media (min-width: 600px) {
+  .modal--auth .auth-card { padding: 34px 32px 22px; }
+}

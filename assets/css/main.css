@@ -28,6 +28,7 @@
 
 /* 3. components */
 @import url("components/accordion.css");
+@import url("components/auth-card.css");
 @import url("components/button.css");
 @import url("components/form.css");
 @import url("components/lists.css");
@@ -44,4 +45,5 @@
 /* 4. pages */
 @import url("pages/onboarding.css");
 @import url("pages/dashboard.css");
+@import url("pages/warranty.css");
 @import url("pages/support.css");

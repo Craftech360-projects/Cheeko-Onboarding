@@ -7,7 +7,6 @@
  *   core/*        storage, persisted state, DOM helpers
  *   components/*  reusable UI blocks (modal, tabs, accordion, video)
  *   features/*    this page's screens (wizard, auth, dashboard)
- *   layout/*      site chrome
  */
 
 import { byId, setVisible } from "./core/dom.js";
@@ -23,7 +22,6 @@ import { initParentAuth } from "./features/parent-auth.js";
 import { initParentDashboard } from "./features/parent-dashboard.js";
 import { initSupportForms } from "./features/support-forms.js";
 
-import { initSiteHeader } from "./layout/site-header.js";
 
 function boot() {
   const onboardingView = byId("onboardingView");
@@ -37,7 +35,6 @@ function boot() {
   const stepAccountSuccess = byId("stepAccountSuccess");
 
   initModals();
-  initSiteHeader();
   initFaqAccordion();
   initVideoModal();
   initSupportForms();
@@ -70,7 +67,7 @@ function boot() {
     setVisible(onboardingView, !isLoggedIn);
     setVisible(dashboardView, isLoggedIn);
 
-    headerAccountButton.textContent = isLoggedIn ? "👤 Profile" : "👤 Log In";
+    headerAccountButton.textContent = isLoggedIn ? "Profile" : "Sign in";
 
     if (isLoggedIn) {
       welcomeHeading.textContent = `Welcome back, ${parentName}!`;
