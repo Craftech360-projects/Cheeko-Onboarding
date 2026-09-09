@@ -147,16 +147,6 @@
 
 .step-card__actions .button { width: 100%; }
 
-.step-card__confirmation {
-  margin-top: 20px;
-  padding: 13px 16px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-on-brand);
-  background: var(--color-success);
-  border-radius: var(--radius-sm);
-}
-
 @media (min-width: 600px) {
   .step-card { padding: 32px; }
 

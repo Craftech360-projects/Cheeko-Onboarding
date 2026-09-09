@@ -1,0 +1,15 @@
+{
+  "name": "cheeko-onboarding-page",
+  "private": true,
+  "type": "module",
+  "description": "Static setup & onboarding page for cheekoai.in. Node is only for the settings generator and the browser tests — the page itself has no build step and no runtime dependencies.",
+  "scripts": {
+    "env": "node tools/build-env.mjs",
+    "serve": "python3 -m http.server 3000",
+    "test": "node tests/api-environment.test.mjs && node tests/auth-flow.test.mjs && node tests/standin.test.mjs && node tests/consent-links.test.mjs && node tests/smoke.test.mjs",
+    "test:cors": "node tests/real-api.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

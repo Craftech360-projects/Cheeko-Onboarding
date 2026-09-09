@@ -1,12 +1,17 @@
 /* =============================================================
    COMPONENT / AUTH CARD
-   The sign-in / sign-up dialog. A compact centred card at every
-   width (it is short enough not to need the bottom-sheet
-   treatment the other modals use), with one Google entry point,
-   a piece of Cheeko artwork and a footer that flips the mode.
+   The sign-in / sign-up / register dialog. A compact centred card
+   at every width (it is short enough not to need the bottom-sheet
+   treatment the other modals use).
 
-   The `.auth-card--signup` modifier only retints the artwork —
-   both modes share the same layout.
+   Two faces, one card:
+     provider choice  the Google and Apple buttons, Cheeko artwork
+                      and a footer that flips sign in / sign up.
+                      `.auth-card--signup` only retints the artwork.
+     `.auth-card__register`  the form a parent with no Cheeko
+                      account fills in. It reuses `components/form`
+                      for the fields and adds the consent list, so
+                      only what is specific to this card is below.
    ============================================================= */
 
 /* `components/modal.css` imports after this file, so the shared
@@ -59,11 +64,16 @@
 }
 
 .auth-card__title {
+  /* Symmetric inline padding clears the close button in the corner, and
+     keeps the text optically centred while doing it. "Sign in" never
+     came near it; "Welcome to Cheeko" ran straight under it. */
   margin: 8px 0 22px;
+  padding: 0 30px;
   font-family: var(--font-display);
   font-size: 34px;
   font-weight: 800;
   letter-spacing: -.01em;
+  line-height: 1.14;
   color: var(--color-ink);
 }
 
@@ -225,4 +235,144 @@
 
 @media (min-width: 600px) {
   .modal--auth .auth-card { padding: 34px 32px 22px; }
+}
+
+
+/* ---------- subtitle ----------
+   Only the register face uses one; the title carries sign in / sign up
+   on its own. It reclaims the title's bottom margin so the pair reads
+   as one heading block. */
+.auth-card__title:has(+ .auth-card__subtitle:not(.is-hidden)) {
+  margin-bottom: 8px;
+}
+
+.auth-card__subtitle {
+  width: 100%;
+  margin: 0 0 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* ---------- "no account yet" notice ----------
+   Deliberately not styled like `.auth-card__error`: nothing has gone
+   wrong, the parent is simply new. Warm tint, ink text. */
+.auth-card__notice {
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: left;
+  color: var(--color-ink);
+  background: var(--color-tint);
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- registration form ---------- */
+.auth-card__register {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+}
+
+/* The address Google handed over. Shown, never asked for — and never an
+   input, so it cannot look editable when it is not. */
+.auth-card__register-email {
+  margin: 0;
+  padding: 0 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.auth-card__field { width: 100%; }
+
+/* Dial code beside the number, as on the Parent App screen. The code
+   column is sized to fit "+971" and its flag without stretching. */
+.auth-card__field--phone {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  gap: 10px;
+}
+
+/* Tighter than the shared select padding: this one holds four
+   characters, so the arrow can sit closer in. */
+.auth-card__field--phone select {
+  padding-right: 30px;
+  font-weight: 600;
+  background-position: calc(100% - 15px) 53%, calc(100% - 9px) 53%;
+}
+
+/* A field the parent has been told is wrong. Set by JS on submit only —
+   never while they are still typing. */
+.auth-card__register .auth-card__field--invalid input,
+.auth-card__register .auth-card__field--invalid select {
+  border-color: var(--color-danger);
+}
+
+/* ---------- consent list ----------
+   Four rows, each a whole-row hit target: the label wraps the box and
+   the text, so tapping the sentence ticks it. */
+.auth-card__consents {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.consent {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  align-items: start;
+  margin: 0;
+  padding: 7px 2px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.consent input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  /* Pull the box down onto the first line's optical centre, so it sits
+     level with the text rather than its ascender. */
+  margin-top: 1px;
+  accent-color: var(--color-brand);
+  cursor: pointer;
+}
+
+.consent input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.consent a {
+  color: var(--color-brand);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Continue sits right under the last box, as it does in the app. */
+.auth-card__register .button--primary { margin-top: 4px; }
+
+/* The footer under Continue centres like the sign-in one, against the
+   left-aligned form above it. */
+.auth-card__register .auth-card__switch { text-align: center; }
+
+@media (min-width: 600px) {
+  .auth-card__register { gap: 16px; }
 }

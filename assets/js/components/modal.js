@@ -25,6 +25,15 @@ export function closeModal(modal) {
   if (!qs(`.${OPEN_CLASS}`)) document.body.classList.remove(BODY_LOCK_CLASS);
 }
 
+/**
+ * Is this modal on screen? Lets a feature branch on whether the parent
+ * is watching — a result that should swap the card's contents when they
+ * are, and wait quietly when it arrived during page load.
+ */
+export function isModalOpen(modal) {
+  return Boolean(modal?.classList.contains(OPEN_CLASS));
+}
+
 export function closeAllModals() {
   qsa(`.${OPEN_CLASS}`).forEach(closeModal);
 }

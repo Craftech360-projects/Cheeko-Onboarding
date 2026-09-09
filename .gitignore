@@ -2,3 +2,12 @@
 
 # Apple Sign in with Apple private keys — never commit these
 *.p8
+
+# Local settings and the browser bundle generated from them.
+# `.env.example` is the committed template; see the README.
+.env
+.env.local
+assets/js/core/env.js
+
+# Node is only for the settings generator and the browser tests.
+node_modules/

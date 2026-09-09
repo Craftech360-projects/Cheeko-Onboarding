@@ -18,6 +18,16 @@ let sdkPromise = null;
 /** Load and initialise the SDK once; every caller shares the promise. */
 function loadAuth() {
   if (!sdkPromise) {
+    // An ungenerated env.js leaves the config blank, and Firebase's own
+    // error for that is opaque. Fail here with the fix instead.
+    if (!FIREBASE_CONFIG.apiKey) {
+      sdkPromise = Promise.reject(new Error(
+        "Firebase is not configured — assets/js/core/env.js has no "
+        + "FIREBASE_API_KEY. Run `node tools/build-env.mjs`.",
+      ));
+      return sdkPromise;
+    }
+
     sdkPromise = Promise.all([
       import(`${SDK}/firebase-app.js`),
       import(`${SDK}/firebase-auth.js`),
@@ -67,6 +77,27 @@ export async function signInWith(name) {
 export async function signOutOfFirebase() {
   const { auth, authSdk } = await loadAuth();
   return authSdk.signOut(auth);
+}
+
+/**
+ * A Firebase ID token for the signed-in parent, or null if there is no
+ * session.
+ *
+ * This is what the parent-profile API authenticates with: a signed JWT
+ * the backend verifies with the Firebase Admin SDK, so the browser
+ * never has to be trusted about who it is. Firebase caches and renews
+ * it behind this call, so ask for one per request rather than holding
+ * on to it.
+ *
+ * `forceRefresh` skips that cache. The Parent App does the same on a
+ * 401 (see ProfileApiService._sendWithFreshTokenRetry): a token that
+ * expired in the seconds between being minted and being read comes
+ * back from the cache still stale, and only a forced refresh clears
+ * it.
+ */
+export async function getIdToken({ forceRefresh = false } = {}) {
+  const { auth } = await loadAuth();
+  return auth.currentUser ? auth.currentUser.getIdToken(forceRefresh) : null;
 }
 
 /**

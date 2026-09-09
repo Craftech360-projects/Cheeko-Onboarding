@@ -146,10 +146,6 @@
                     <p class="screen-showcase__caption">Parent App · Registration</p>
                   </div>
                 </div>
-
-                <div class="step-card__confirmation is-hidden" id="stepAccountSuccess" role="status">
-                  ✓ Parent account linked successfully! Continuing...
-                </div>
               </div>
 
               <div class="step-card__actions">
@@ -449,15 +445,32 @@
      MODALS
      ============================================================ -->
 <!-- Auth modal.
-     One dialog, two modes: "signin" and "signup". JavaScript swaps the
-     title, the footer prompt and the artwork tint; everything else is
-     shared. Google is the only entry point, so there is no form here. -->
+     One dialog, three modes, swapped by `features/parent-auth.js`:
+
+       "signin" / "signup"  the provider buttons. These two differ in
+                            wording only — the account either exists or
+                            it does not, and pressing Google finds out.
+       "register"           shown when the lookup finds no Cheeko
+                            account for that Google address. It mirrors
+                            the Parent App's "Welcome to Cheeko" screen
+                            (assets/img/screens/parent-account.png):
+                            name, mobile number, language and the
+                            consent boxes.
+
+     Only one of #authChoose / #authRegisterForm is on screen at a
+     time. -->
 <div class="modal modal--auth" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
   <div class="modal__dialog auth-card" id="authCard">
     <button type="button" class="auth-card__close" data-modal-close aria-label="Close">&times;</button>
 
     <h2 class="auth-card__title" id="authModalTitle">Sign in</h2>
+    <p class="auth-card__subtitle is-hidden" id="authSubtitle"></p>
 
+    <!-- Shown when the Google account has no Cheeko profile yet. Not an
+         error, so it is toned as information rather than #authError. -->
+    <p class="auth-card__notice is-hidden" id="authNotice" role="status"></p>
+
+    <div id="authChoose">
     <div class="auth-card__providers">
       <button type="button" class="oauth-button" id="authGoogleBtn">
         <svg class="oauth-button__icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
@@ -496,6 +509,119 @@
         <span class="auth-card__switch-arrow" aria-hidden="true">&rarr;</span>
       </button>
     </p>
+    </div><!-- /#authChoose -->
+
+    <!-- Registration. Google has already proved who they are, so the
+         email is shown and not asked for. Field order, labels and the
+         four checkboxes match the Parent App screen one-for-one, so a
+         parent who starts on the phone and finishes here sees the same
+         form. Continue stays disabled until the name, the number and
+         the three required boxes are all good. -->
+    <form class="auth-card__register is-hidden" id="authRegisterForm" novalidate>
+      <p class="auth-card__register-email" id="authRegisterEmail"></p>
+
+      <div class="auth-card__field">
+        <label class="visually-hidden" for="registerName">Parent name</label>
+        <input type="text" id="registerName" name="name" autocomplete="name"
+               placeholder="Parent name" maxlength="60" required>
+      </div>
+
+      <!-- The option value is the ISO code the API stores as
+           `country_region`; `data-dial` is prefixed to the number to
+           make the E.164 `phone_number`. The Parent App validates every
+           country's number as exactly 10 digits, so `data-digits` says
+           10 unless the country's numbers really are a different
+           length. -->
+      <div class="auth-card__field auth-card__field--phone">
+        <label class="visually-hidden" for="registerCountry">Country code</label>
+        <select id="registerCountry" name="countryRegion">
+          <option value="IN" data-dial="+91" data-digits="10" selected>&#127470;&#127475; +91</option>
+          <option value="US" data-dial="+1" data-digits="10">&#127482;&#127480; +1</option>
+          <option value="CA" data-dial="+1" data-digits="10">&#127464;&#127462; +1</option>
+          <option value="GB" data-dial="+44" data-digits="10">&#127468;&#127463; +44</option>
+          <option value="AU" data-dial="+61" data-digits="9">&#127462;&#127482; +61</option>
+          <option value="SG" data-dial="+65" data-digits="8">&#127480;&#127468; +65</option>
+          <option value="AE" data-dial="+971" data-digits="9">&#127462;&#127466; +971</option>
+        </select>
+
+        <label class="visually-hidden" for="registerPhone">Phone number</label>
+        <input type="tel" id="registerPhone" name="phone" autocomplete="tel-national"
+               inputmode="numeric" placeholder="Phone number" maxlength="18" required>
+      </div>
+
+      <!-- Codes, not labels: the API stores `preferred_language` as one
+           of these, and this is the exact set the Parent App offers
+           (its `_languages` list). Adding one here without the toy
+           supporting it would promise a voice Cheeko cannot speak. The
+           account modal reads its label back off these options, so this
+           markup is the only place the pairing lives. -->
+      <div class="auth-card__field">
+        <label class="visually-hidden" for="registerLanguage">Language Cheeko speaks</label>
+        <select id="registerLanguage" name="language">
+          <option value="en" selected>English</option>
+          <option value="hi">Hindi</option>
+          <option value="kn">Kannada</option>
+          <option value="ml">Malayalam</option>
+        </select>
+      </div>
+
+      <!-- The first three are required; the last is a genuine choice.
+           `data-consent-required` is what the JS counts, so making one
+           optional later is an attribute, not new code.
+
+           The two documents are the same Notion pages the Parent App
+           links to, and they are what `terms_version` 2025-07-28 in
+           `core/parent-directory.js` refers to — so if these URLs change
+           because the documents changed, that version string needs
+           changing with them.
+
+           They open in a new tab: a parent halfway through this form
+           must not lose it to reading the policy they are being asked
+           to accept. -->
+      <ul class="auth-card__consents">
+        <li>
+          <label class="consent">
+            <input type="checkbox" id="consentGuardian" name="consentGuardian" data-consent-required>
+            <span>I confirm I am the parent/guardian and consent to creating this account.</span>
+          </label>
+        </li>
+        <li>
+          <label class="consent">
+            <input type="checkbox" id="consentPrivacy" name="consentPrivacy" data-consent-required>
+            <span>I accept the
+              <a href="https://cheekoai-parental-app.notion.site/CheekoAI-Parental-App-Privacy-Policy-23a8cf62246180f0964fc84903d5ed60"
+                 target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span>
+          </label>
+        </li>
+        <li>
+          <label class="consent">
+            <input type="checkbox" id="consentTerms" name="consentTerms" data-consent-required>
+            <span>I accept the
+              <a href="https://cheekoai-parental-app.notion.site/CheekoAI-Parental-App-Terms-of-Service-23e8cf62246180299679dee422461341"
+                 target="_blank" rel="noopener noreferrer">Terms of Service</a>.</span>
+          </label>
+        </li>
+        <li>
+          <label class="consent">
+            <input type="checkbox" id="consentMarketing" name="consentMarketing">
+            <span>Send me product updates and offers.</span>
+          </label>
+        </li>
+      </ul>
+
+      <p class="auth-card__error is-hidden" id="authRegisterError" role="alert"></p>
+
+      <button type="submit" class="button button--primary button--block"
+              id="authRegisterSubmit" disabled>Continue</button>
+
+      <p class="auth-card__switch">
+        <span>Not your account?</span>
+        <button type="button" class="auth-card__switch-link" id="authRegisterCancelBtn">
+          <span>Use a different one</span>
+          <span class="auth-card__switch-arrow" aria-hidden="true">&rarr;</span>
+        </button>
+      </p>
+    </form>
   </div>
 </div>
 
@@ -506,13 +632,27 @@
       <button type="button" class="modal__close" data-modal-close aria-label="Close">&times;</button>
     </div>
     <div class="modal__body">
+      <!-- Name, email and phone are the registered profile, read back
+           through `core/parent-directory.js`.
+
+           The rows below them are hidden for now, kept rather than
+           deleted because each is waiting on something real:
+             Cheeko speaks   the language IS registered and stored, so
+                             this row is correct the moment it is shown
+                             again — main.js keeps filling it in.
+             Subscription    hardcoded; there is no billing behind it.
+             Paired Devices  hardcoded; nothing reports paired hardware
+                             to this page yet.
+           To bring one back, drop its `is-hidden`. -->
       <div class="detail-block">
         <h4 class="detail-block__title">Parent Account Details</h4>
         <p>Name: <strong id="profileName">N/A</strong></p>
         <p>Email: <strong id="profileEmail">N/A</strong></p>
-        <p>Subscription: <strong>Cheeko Pro Plus</strong></p>
+        <p>Phone: <strong id="profilePhone">N/A</strong></p>
+        <p class="is-hidden">Cheeko speaks: <strong id="profileLanguage">N/A</strong></p>
+        <p class="is-hidden">Subscription: <strong>Cheeko Pro Plus</strong></p>
       </div>
-      <div class="detail-block">
+      <div class="detail-block is-hidden">
         <h4 class="detail-block__title">Paired Devices</h4>
         <p><span class="detail-block__dot" aria-hidden="true">●</span> <strong>Cheeko Pro Fox (Active)</strong></p>
       </div>

@@ -9,7 +9,7 @@
  *   features/*    this page's screens (wizard, auth, dashboard)
  */
 
-import { byId, setVisible } from "./core/dom.js";
+import { byId } from "./core/dom.js";
 import { appState, onStateChange } from "./core/app-state.js";
 
 import { initModals } from "./components/modal.js";
@@ -28,8 +28,9 @@ function boot() {
   const headerAccountButton = byId("headerAccountBtn");
   const profileName = byId("profileName");
   const profileEmail = byId("profileEmail");
+  const profilePhone = byId("profilePhone");
+  const profileLanguage = byId("profileLanguage");
 
-  const stepAccountSuccess = byId("stepAccountSuccess");
 
   initModals();
   initFaqAccordion();
@@ -59,20 +60,28 @@ function boot() {
 
   /**
    * The page itself reads the same signed in or out. Signing in only
-   * changes the header button and fills in the account modal.
+   * changes the header button and fills in the account modal with the
+   * details the parent registered.
    */
   function render() {
-    const { isLoggedIn, parentName, parentEmail } = appState;
+    const {
+      isLoggedIn, parentName, parentEmail, parentPhone, parentLanguage,
+    } = appState;
 
     headerAccountButton.textContent = isLoggedIn ? "Profile" : "Sign in";
 
     if (isLoggedIn) {
+      // The registered profile, as the parent-profile API returned it.
+      // A field the account was created without shows as "Not set"
+      // rather than blank, so the row does not read as a bug.
+      //
+      // The language row is hidden in the markup for now. It is still
+      // filled in, so un-hiding it needs no change here.
       profileName.textContent = parentName;
       profileEmail.textContent = parentEmail;
+      profilePhone.textContent = parentPhone || "Not set";
+      profileLanguage.textContent = parentLanguage || "Not set";
     }
-
-    // Step 2 confirms itself once the parent account exists.
-    setVisible(stepAccountSuccess, isLoggedIn);
 
     // Never reposition the slider from here: a parent browsing back
     // through completed steps must not be yanked forward by a state

@@ -13,6 +13,11 @@ a conventional static-site structure.
 .
 ├── index.html                    the page (markup only)
 ├── README.md
+├── .env.example                  settings template — copy to .env
+├── package.json                  scripts only; the page has no build step
+├── tools/
+│   └── build-env.mjs             .env -> assets/js/core/env.js
+├── tests/                        browser tests — see tests/README.md
 └── assets/
     ├── img/
     │   ├── cheeko-logo.png       was a 37 KB base64 data URI in the markup
@@ -27,7 +32,7 @@ a conventional static-site structure.
     │   └── pages/                view-specific composition
     └── js/
         ├── main.js               entry point (ES module)
-        ├── core/                 storage, persisted state, DOM helpers
+        ├── core/                 settings, storage, state, DOM, backend
         ├── components/           reusable UI behaviour
         └── features/             this page's screens
 ```
@@ -74,8 +79,11 @@ that knows about more than one feature.
 
 | File | Responsibility |
 |---|---|
-| `core/config.js` | deployment settings — Web3Forms key, Firebase project |
+| `core/config.js` | reads `core/env.js` and hands out plain constants |
+| `core/env.js` | **generated** from `.env`, gitignored — see [Settings](#settings-and-env) |
+| `core/api-environment.js` | which of the three backends this page talks to, and why |
 | `core/firebase.js` | Firebase Auth, loaded from the CDN on first use |
+| `core/parent-directory.js` | the parent-profile API — does this parent have an account? |
 | `core/storage.js` | `localStorage` with an in-memory fallback for Safari with cookies blocked |
 | `core/app-state.js` | all persisted state + setters + change subscription |
 | `core/dom.js` | `qs` / `qsa` / `byId` / `setVisible` |
@@ -84,7 +92,7 @@ that knows about more than one feature.
 | `components/faq-accordion.js` | single-open FAQ |
 | `components/video-modal.js` | simulated tutorial player |
 | `features/onboarding-wizard.js` | the five-step slider and progress rail |
-| `features/parent-auth.js` | sign in / sign up card via Google, log out |
+| `features/parent-auth.js` | sign in / sign up / register card, log out |
 | `features/parent-dashboard.js` | safety controls, resource shortcuts |
 | `features/support-forms.js` | warranty (demo) + support ticket form (sends email) |
 
@@ -115,13 +123,47 @@ variables, `SCREAMING_SNAKE_CASE` for module constants.
 
 ## Running locally
 
-`assets/js/main.js` is an ES module, so browsers will not load it over
-`file://`. Serve the folder:
+First time only — generate the settings module the page imports:
 
 ```bash
-python3 -m http.server 8000
-# then open http://localhost:8000/
+cp .env.example .env      # then fill in the values, see Settings below
+npm run env               # == node tools/build-env.mjs
 ```
+
+`assets/js/main.js` is an ES module, so browsers will not load it over
+`file://`. Serve the folder — **on port 3000**, not 8000:
+
+```bash
+npm run serve             # == python3 -m http.server 3000
+# then open http://localhost:3000/
+```
+
+The port is not arbitrary. Sign-in reads the parent-profile API, and
+that API answers a browser only from an origin on its CORS allowlist —
+`http://localhost:3000` and `http://localhost:8080` are on it,
+`http://localhost:8000` is not. On 8000 every profile lookup fails with
+an opaque `TypeError: Failed to fetch` and the card reports that it
+could not check your account. See [CORS](#cors--the-one-thing-still-to-do).
+
+## Tests
+
+```bash
+npm install && npx playwright install chromium   # once
+npm run serve                                    # in another shell
+npm test
+```
+
+They drive the real page in a real browser, stubbing only
+`core/firebase.js` (Google's popup is the one thing that cannot be
+automated) so `parent-auth.js`, `parent-directory.js` and
+`app-state.js` run as shipped. `npm run test:cors` answers separately
+whether a browser on a given origin can reach the live API.
+
+See [`tests/README.md`](tests/README.md) for what each file covers and
+why the assertions are what they are.
+
+`npm` is only ever needed for these and for `npm run env`. The page
+itself has no build step and no runtime dependencies.
 
 ## Notes
 
@@ -131,7 +173,54 @@ python3 -m http.server 8000
 - The warranty form is a **front-end simulation**. Nothing is sent
   anywhere; wizard progress is remembered in `localStorage` only.
 
-## Sign in / Sign up (Firebase)
+## Settings and `.env`
+
+Every deployment setting lives in `.env`, which is **not committed**.
+`.env.example` is the committed template.
+
+```bash
+cp .env.example .env       # fill in the values
+node tools/build-env.mjs   # writes assets/js/core/env.js
+```
+
+Re-run the generator after every edit to `.env`, and as part of
+deploying. `core/config.js` imports the generated module and hands the
+rest of the page plain constants, so no other file knows where a setting
+came from.
+
+### A browser has no secrets
+
+This is the important part. Everything the generator writes into
+`env.js` is served with the page and readable by anyone who opens it —
+"in a `.env` file" is not the same as "secret" once it reaches a
+browser.
+
+So `tools/build-env.mjs` is an **allowlist, not a copier**: it publishes
+only keys named `CHEEKO_PUBLIC_*` and reports every other key as
+skipped. That lets one `.env` hold both browser settings and backend
+secrets without a rename or a typo ever publishing one. A service
+account key, a database URL, an API secret — those stay unprefixed, and
+never reach `env.js`.
+
+The four public settings are public *by design*, which is why they were
+safe to commit before this change and are safe in page source now:
+
+| Key | Why it is safe to expose |
+|---|---|
+| `CHEEKO_PUBLIC_WEB3FORMS_ACCESS_KEY` | submit-only; it can post to one inbox and nothing else |
+| `CHEEKO_PUBLIC_FIREBASE_*` | ships inside every Firebase web app; identifies the project rather than authorising anything — what guards it is the authorised-domain list and your security rules |
+| `CHEEKO_PUBLIC_API_BASE_URL_*`, `CHEEKO_PUBLIC_API_ENV` | hostnames and a name; the API authenticates every request with a Firebase ID token |
+
+Note that these values are still in this repo's **git history** from
+before they moved to `.env`. That is not a leak — see the table — but if
+you ever put something genuinely secret in a `CHEEKO_PUBLIC_` key, the
+history is where it will stay.
+
+If `env.js` is missing, `core/config.js` says so in the console and
+falls back to empty values: sign-in and the support form switch off, and
+the rest of the page keeps working.
+
+## Accounts — sign in, sign up, register
 
 Google sign-in runs on Firebase Auth, project **cheekoai**. The SDK
 (v12.18.0) is imported from Google's CDN inside
@@ -139,10 +228,15 @@ Google sign-in runs on Firebase Auth, project **cheekoai**. The SDK
 dynamic import, so if the CDN is unreachable only sign-in breaks and the
 rest of the page keeps working.
 
-Firebase is the source of truth for who is signed in. The button just
-opens Google's chooser; app state, closing the card and the onboarding
-step all hang off the `onAuthStateChanged` listener, so a session
-restored on page load takes the same path as a fresh sign-in.
+Firebase is the source of truth for **who** is signed in; the
+parent-profile API is the source of truth for **whether they have an
+account**. The next two sections are about why that difference matters.
+
+The provider buttons only open Google's chooser. Everything after
+that — the profile lookup, the branch, app state, closing the card, the
+onboarding step — hangs off the `onAuthStateChanged` listener, so a
+session restored on page load takes exactly the same path as a fresh
+sign-in. One funnel, one set of bugs.
 
 ### Console setup
 
@@ -232,20 +326,317 @@ as "You already have an account with that email. Try the other button."
 Linking the two credentials into one account is extra work that has not
 been done.
 
-### Sign in vs Sign up
+### Two questions, not one
 
-With Google there is only one flow. The two modes differ in wording
-only: signing in with an unknown Google account creates it, and signing
-up with a known one just signs in. Splitting them for real means
-checking `getAdditionalUserInfo(credential).isNewUser` and rejecting the
-mismatch — worth doing only if you want to turn people away.
+Google tells the page **who** someone is. It does not tell it whether
+they have a **Cheeko account** — the popup happily mints a Firebase
+record for an address nobody has seen before. So every sign-in asks a
+second question, of [`core/parent-directory.js`](assets/js/core/parent-directory.js):
+is there a parent profile for this uid?
 
-### What is not stored
+| Answer | What the parent sees |
+|---|---|
+| profile found **and complete** | signed in, their saved details in the account modal |
+| profile found but **empty** | "Your Cheeko account is missing a few details" → the form, prefilled from what the row does have |
+| no profile (404) | "We could not find a Cheeko account for …" → the form |
+| lookup failed | "We could not check your Cheeko account just now" — and nothing else happens |
 
-Nothing is written to Firestore — there is no database in this project
-yet. The parent's name and email live in `localStorage` for the greeting
-and the account modal, and the "Paired Devices" and subscription lines
-in that modal are still hardcoded markup.
+"Complete" is the app's own rule, `ParentProfile.isProfileComplete`: a
+name and a phone number, both non-empty. A 200 is not proof anyone ever
+filled the form in — the backend stores `phone_number:
+data.phoneNumber || ''`, so a row can exist with nothing in it. The app
+routes such a parent back to its setup screen; showing them an account
+modal with a blank phone number instead would be the bug.
+
+Finishing an existing row is a **PUT**, not a POST, and the verb is
+chosen from that lookup rather than guessed from whether a collision
+comes back as 409 or 500. The PUT sends the app's
+`updateParentProfile` field set exactly, and deliberately does *not*
+invent consent columns on an update — the consent recorded when the row
+was created still stands.
+
+That third row is the one worth guarding. **"We could not ask" must
+never be read as "you are new."** Collapsing the two walks a registered
+parent into signing up for a second, empty account — the Parent App
+shipped that bug and fixed it the same way, which is what the comments
+on its `UserStateAvailability` and `decideSplashRoute` are about. So
+`fetchParentProfile` resolves `null` only for a real 404 and throws for
+everything else: a 401, a 5xx, a timeout, a gateway's HTML error page.
+
+The lookup is also why `getAdditionalUserInfo(cred).isNewUser` is not
+used. That flag describes the Firebase *auth record*, not the account: a
+parent who signed in and abandoned the form has a record and no
+profile, and `isNewUser` would call them a returning parent and let them
+in with no name and no phone number.
+
+### The same API as the Parent App
+
+Registration reads and writes the **same parent record the phone app
+does**, so it is one account either way: register on the phone and you
+are a returning parent here; register here and the app finds you set up
+when it opens.
+
+An account is **two server-side rows**, and registering writes both:
+
+| Row | Holds | Who reads it |
+|---|---|---|
+| `user-state` | account existence — `onboarding_completed`, `current_stage` | the Parent App's launch check, on **every** launch |
+| `parent-profile` | the human details — name, phone, language, consent | both clients, to show the account |
+
+```
+GET  {base}/toy/api/mobile/parent-profile   200 -> the profile
+                                            404 -> no account yet
+POST {base}/toy/api/mobile/user-state       201/200/409 -> the row exists
+POST {base}/toy/api/mobile/parent-profile   201 -> the profile it created
+PUT  {base}/toy/api/mobile/parent-profile   200 -> a row filled in
+```
+
+**Order matters, and it is user-state first.** If the profile write
+fails after that, the parent looks new to both clients and can simply
+try again. The reverse — a profile row with no account row — is the
+state that strands them: the app's launch check reads a 404 from
+user-state, calls them brand new, and sends them to its profile setup
+screen, which *always* POSTs (`// Create profile (new user — always
+POST)`). That POST lands on the row this page already wrote and
+dead-ends on an error popup with no way forward.
+
+So a user-state failure aborts the whole registration rather than
+carrying on. The server's `createUserState` is itself idempotent — it
+returns an existing row instead of erroring — and 409 is treated as
+success here for the same reason: the row existing is the state we were
+asking for. A parent who abandons the form once will legitimately reach
+this call again on their next visit.
+
+`{base}` is whichever host [`core/api-environment.js`](assets/js/core/api-environment.js)
+resolved — see [Choosing a backend](#choosing-a-backend). Every call
+carries `Authorization: Bearer <Firebase ID token>`, which the backend
+verifies with the Firebase Admin SDK, so the uid and email come from
+the token and never from the body.
+
+[`core/parent-directory.js`](assets/js/core/parent-directory.js) mirrors
+the app's `lib/services/profile_api_service.dart` on purpose, because
+divergence between the two clients shows up as data the other one
+cannot read:
+
+- **The POST body, field for field** — `parent_name`, `email`,
+  `phone_number` (E.164, dial code included: `+919876543210`),
+  `country_region` (ISO: `IN`), `preferred_language` (a code: `en`,
+  `hi`, `kn`, `ml`), `timezone` (IANA, omitted when the browser will not
+  say, so a stored good value is never overwritten with UTC),
+  `consent_accepted_at` / `privacy_policy_accepted_at` /
+  `terms_accepted_at` (one timestamp — they were all agreed to by the
+  same click), `terms_version`, `marketing_opt_in`,
+  `notification_preferences`.
+- **`terms_version` is `2025-07-28`**, matching
+  `LegalDocuments.termsVersion` in the app. Bump both together.
+- **The 401 retry.** A rejected token is retried once with a
+  force-refreshed one. This backend sometimes reports an expired token
+  as a 200 whose *body* carries `code: 401`, so the body is checked as
+  well as the status.
+- **Timeouts** of 12s on the read and 15s on the write, matching the
+  app's `kBackendRequestTimeout`. Unbounded, a backend that accepts the
+  connection and never answers parks the card for minutes.
+
+Do **not** point the base URL at the app's `MOBILE_API_BASE_URL`
+(`http://103.214.61.55`). A browser on an `https://` page refuses
+plain-HTTP requests as mixed content, so it can never work here.
+
+### Choosing a backend
+
+Three hosts, mirroring the Parent App's `api_config_service.dart`, and
+one selector — all in `.env`:
+
+```
+CHEEKO_PUBLIC_API_BASE_URL_PRODUCTION=https://ota.cheekoai.in
+CHEEKO_PUBLIC_API_BASE_URL_DEVELOPMENT=https://otadev.cheekoai.in
+CHEEKO_PUBLIC_API_BASE_URL_LOCAL=http://localhost:8002
+CHEEKO_PUBLIC_API_ENV=development
+```
+
+`CHEEKO_PUBLIC_API_ENV` takes `production`, `development` or `local`.
+The committed default is **development**, not production.
+
+Precedence, highest first:
+
+1. `?api=…` in the URL — `production`, `development`, `local`,
+   `standin`, or `clear` to forget it. `prod` and `dev` work as
+   aliases.
+2. `localStorage`, from a previous `?api=…`. It is remembered on
+   purpose: the point is to test a deployed build against another
+   backend, and that means clicking through pages that will not carry
+   the parameter.
+3. `CHEEKO_PUBLIC_API_ENV`.
+4. Nothing — the localStorage stand-in.
+
+The page logs which one it picked and where that came from on every
+load, so "which backend am I on?" is never a guess.
+
+**Empty is a supported state, not a bug.** An empty `API_ENV`, an empty
+URL for the selected environment, or `?api=standin` all switch on the
+stand-in described [below](#running-with-no-backend). That is the only
+way to work when no backend is reachable, which — see the next
+section — is currently the case for most origins.
+
+The fallback is deliberately the stand-in and **not** production. The
+app falls back to production when nothing is set; copying that here
+would be a trap, because a browser sent to a host whose allowlist does
+not name it fails with an opaque `TypeError: Failed to fetch`. Someone
+who checks out this repo and runs it should get a page that works.
+
+Two things worth knowing:
+
+- `local` is plain http. An **https** page cannot call it — browsers
+  block that as mixed content before the request is sent — so
+  `api-environment.js` logs an error naming that specifically. Serve
+  the page over http for local work. The same trap is why the app's own
+  `MOBILE_API_BASE_URL` (`http://103.214.61.55`) can never be used
+  here.
+- A local backend must allow `http://localhost:3000` as a CORS origin
+  too. Being on the same machine does not make it the same origin.
+
+### CORS — the one thing still to do
+
+The Parent App is native, so CORS never applied to it. A browser is
+different: it will not let this page read the API's reply unless the
+API's preflight names this page's origin. This is a server-side
+allowlist on each host — nothing in this repo can change it.
+
+Measured from a real browser (`npm run test:cors`, which is the only
+way to measure it — curl ignores CORS, so a blocked host looks
+perfectly healthy from the shell):
+
+| from | production | development | local |
+|---|---|---|---|
+| `http://localhost:3000` | **reachable** | blocked | *(nothing listening)* |
+| `http://localhost:8080` | **reachable** | blocked | *(nothing listening)* |
+| `https://www.cheekoai.in` | blocked | blocked | n/a |
+
+Two things fall out of that, and both are worth knowing before
+debugging anything:
+
+- **`otadev.cheekoai.in` allows no browser origin at all.** It answers
+  curl (401, so it is up and healthy) and refuses every browser. So the
+  committed default of `development` cannot currently talk to anything
+  from a browser, and falls through to the console diagnostic below.
+  Adding `http://localhost:3000` to dev's allowlist is the single change
+  that makes local verification work against dev.
+- **Production is reachable from `localhost:3000`**, which makes
+  `?api=production` a working escape hatch today. It is *not* reachable
+  from `https://www.cheekoai.in`, so production still needs its own
+  allowlist entry before this page works on the live domain.
+
+To fix, server-side, alongside the `Authorization` header (already
+allowed on both hosts):
+
+```
+https://www.cheekoai.in     <- the live page
+https://cheekoai.in         <- insurance if the redirect ever flips
+http://localhost:3000       <- local development (dev host especially)
+```
+
+### Why a blocked request is not a confusing one
+
+A refused preflight is reported to JavaScript as a bare
+`TypeError: Failed to fetch` — no status, no body, byte for byte what a
+dead server looks like. The browser withholds the reason deliberately.
+
+So `core/parent-directory.js` guesses out loud instead, naming the
+origin, the host and the two ways out:
+
+```
+The parent API at https://otadev.cheekoai.in/toy/api/mobile/parent-profile
+did not answer http://localhost:3000 at all — no status, no body.
+The likeliest cause by far is CORS: the API answers a browser only from an
+origin on its allowlist, and a refused preflight is reported to JavaScript
+exactly like a network failure.
+Either add http://localhost:3000 to that allowlist server-side, or point
+this page at a host that already allows it — append ?api=production,
+?api=development or ?api=local to the URL, or ?api=standin to work with no
+backend.
+```
+
+It reads "likeliest" because it is a guess; the real error is still
+thrown and still logged. What it must never do is change the *decision*:
+a blocked lookup is an unreachable backend, never a new parent. That is
+asserted in `tests/auth-flow.test.mjs`.
+
+### The registration form
+
+The card's third mode. It is the Parent App's "Welcome to Cheeko" screen
+([`assets/img/screens/parent-account.png`](assets/img/screens/parent-account.png))
+field for field, so a parent who starts on the phone and finishes on the
+web sees the same form: the email shown rather than asked for, parent
+name, country code and mobile number, the language Cheeko speaks, and
+four checkboxes. Continue stays disabled until the name, the number and
+the three required boxes are all good — the fourth, marketing, is a
+genuine choice.
+
+The three required boxes are not sent as flags. The API records consent
+as those three timestamps, and Continue cannot be reached without all
+three, so submitting *is* the consent.
+
+Two things follow the app's own quirks:
+
+- **Name prefill** is `displayName`, else the local part of the email —
+  usually close enough to be worth correcting rather than typing.
+- **Phone length** is 10 digits, which is what the app validates for
+  every country (`isValidLocalPhoneNumber`). Countries whose numbers
+  really are a different length carry a `data-digits` override in the
+  markup.
+
+The Privacy Policy and Terms of Service link to the same Notion pages
+the Parent App does (they are not on `cheekoai.in` — every path there
+404s, which is what made them look missing). They are the documents
+`terms_version` `2025-07-28` refers to, so if those URLs change because
+the documents changed, that version string changes with them.
+
+They open in a new tab so a parent halfway through the form does not
+lose it. A link inside a `<label>` is the kind of thing that quietly
+ticks the checkbox it sits in — it does not here, because an `<a href>`
+is interactive content and the browser skips the label's activation
+behaviour, but `tests/consent-links.test.mjs` pins that down rather
+than trusting it. Someone reading a policy must never be recorded as
+having accepted it.
+
+### An interrupted registration
+
+A parent can close the card mid-form, or reload. They then hold a
+Firebase session with no Cheeko account, and the page treats them as
+signed **out** — which is honest, because they have no account.
+
+Pressing the header button walks straight back into the form with what
+they typed still there, rather than through Google again. Nothing is
+auto-opened on page load: popping a modal at someone who only reloaded
+is rude. "Not your account? Use a different one" drops the Firebase
+session so the chooser reappears.
+
+### Running with no backend
+
+With no API environment resolved — an empty `CHEEKO_PUBLIC_API_ENV`, an
+empty URL for the selected one, or `?api=standin` —
+`core/parent-directory.js` swaps the API for a `localStorage` stand-in,
+keyed by Firebase uid. Register once and you are a returning parent from
+then on, so both paths are reachable with no server and no CORS. It
+speaks the same profile shape, so putting the real URL back changes no
+call site.
+
+`forgetLocalProfile(uid)` clears one stored profile, for walking the
+new-parent path more than once. It only touches the stand-in — deleting
+a real account is `DELETE /toy/api/mobile/account`, which belongs to the
+app.
+
+### What is stored where
+
+| | Where | Why |
+|---|---|---|
+| the account | the parent-profile API | shared with the Parent App |
+| name, email, phone, language | `localStorage` | so the account modal can paint before the next lookup returns |
+| onboarding step | `localStorage` | front-end only |
+
+The phone number is cleared on log out; the name and email survive, to
+greet a returning parent before the lookup finishes. "Paired Devices"
+and the subscription line in the account modal are still hardcoded
+markup — there is nothing behind them yet.
 
 ## Contact Support email
 

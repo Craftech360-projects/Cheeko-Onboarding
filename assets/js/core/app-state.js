@@ -13,6 +13,8 @@ const STORAGE_KEYS = {
   isLoggedIn:     "cheeko_parent_logged_in",
   parentName:     "cheeko_parent_name",
   parentEmail:    "cheeko_parent_email",
+  parentPhone:    "cheeko_parent_phone",
+  parentLanguage: "cheeko_parent_language",
   onboardingStep: "cheeko_onboard_step",
 };
 
@@ -26,6 +28,8 @@ export const appState = {
   isLoggedIn:     storage.get(STORAGE_KEYS.isLoggedIn) === "true",
   parentName:     storage.get(STORAGE_KEYS.parentName) || DEFAULT_PARENT_NAME,
   parentEmail:    storage.get(STORAGE_KEYS.parentEmail) || "parent@example.com",
+  parentPhone:    storage.get(STORAGE_KEYS.parentPhone) || "",
+  parentLanguage: storage.get(STORAGE_KEYS.parentLanguage) || "",
   onboardingStep: clampStep(parseInt(storage.get(STORAGE_KEYS.onboardingStep), 10)),
 };
 
@@ -44,26 +48,47 @@ export function onStateChange(listener) {
   return () => listeners.delete(listener);
 }
 
-export function signIn({ name, email }) {
+/**
+ * Mark the parent signed in and cache their details for the header and
+ * the account modal.
+ *
+ * The registered profile in `core/parent-directory.js` is the source of
+ * truth for all of this; what is stored here is only a copy, so the
+ * account modal can paint before the next lookup returns. Fields left
+ * out keep whatever they had, which is what lets a Firebase-only detail
+ * (the email) arrive before the profile does.
+ */
+export function signIn({ name, email, phone, language } = {}) {
   appState.isLoggedIn = true;
-  if (name)  appState.parentName = name;
-  if (email) appState.parentEmail = email;
+  if (name)     appState.parentName     = name;
+  if (email)    appState.parentEmail    = email;
+  if (phone)    appState.parentPhone    = phone;
+  if (language) appState.parentLanguage = language;
 
   storage.set(STORAGE_KEYS.isLoggedIn, "true");
   storage.set(STORAGE_KEYS.parentName, appState.parentName);
   storage.set(STORAGE_KEYS.parentEmail, appState.parentEmail);
+  storage.set(STORAGE_KEYS.parentPhone, appState.parentPhone);
+  storage.set(STORAGE_KEYS.parentLanguage, appState.parentLanguage);
   notify();
 }
 
-/** Sign out and clear the whole setup run, so onboarding starts fresh. */
+/**
+ * Sign out and clear the whole setup run, so onboarding starts fresh.
+ *
+ * The name and email survive on purpose — they greet a returning parent
+ * before the profile lookup finishes. The phone number does not: it is
+ * of no use to a signed-out page, and devices get shared.
+ */
 export function signOut() {
   appState.isLoggedIn = false;
   appState.onboardingStep = FIRST_STEP;
+  appState.parentPhone = "";
+  appState.parentLanguage = "";
 
+  const kept = [STORAGE_KEYS.parentName, STORAGE_KEYS.parentEmail];
   Object.values(STORAGE_KEYS).forEach((key) => {
-    if (key !== STORAGE_KEYS.parentName && key !== STORAGE_KEYS.parentEmail) {
-      storage.remove(key);
-    }
+    if (!kept.includes(key)) storage.remove(key);
   });
   notify();
 }
