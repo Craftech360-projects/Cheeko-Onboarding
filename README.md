@@ -123,20 +123,36 @@ variables, `SCREAMING_SNAKE_CASE` for module constants.
 
 ## Running locally
 
-First time only — generate the settings module the page imports:
+First time only — create your settings file:
 
 ```bash
 cp .env.example .env      # then fill in the values, see Settings below
-npm run env               # == node tools/build-env.mjs
 ```
 
 `assets/js/main.js` is an ES module, so browsers will not load it over
 `file://`. Serve the folder — **on port 3000**, not 8000:
 
 ```bash
-npm run serve             # == python3 -m http.server 3000
+npm run serve             # regenerates env.js, then serves on port 3000
 # then open http://localhost:3000/
 ```
+
+`npm run serve` runs `npm run env` first, so `assets/js/core/env.js` is
+regenerated from `.env` every time. That is deliberate: it is a
+generated, gitignored file the page hard-depends on, and both ways of
+getting it wrong are unpleasant. **Missing** — a fresh clone, a
+`git clean`, a deploy that skips the generator — and sign-in throws
+`Firebase is not configured`. **Stale** — `.env` edited without
+re-running it — and the page silently talks to the wrong backend, which
+is worse than an error. `npm test` regenerates it too, via `pretest`.
+
+If you serve the folder some other way (VS Code Live Server, plain
+`python3 -m http.server`), run `npm run env` yourself after touching
+`.env`.
+
+**Deploying:** `node tools/build-env.mjs` has to run in the build step,
+with the `CHEEKO_PUBLIC_*` values present in the host's environment.
+Without it the deployed page has no `env.js` and sign-in is dead.
 
 The port is not arbitrary. Sign-in reads the parent-profile API, and
 that API answers a browser only from an origin on its CORS allowlist —
@@ -216,9 +232,12 @@ before they moved to `.env`. That is not a leak — see the table — but if
 you ever put something genuinely secret in a `CHEEKO_PUBLIC_` key, the
 history is where it will stay.
 
-If `env.js` is missing, `core/config.js` says so in the console and
-falls back to empty values: sign-in and the support form switch off, and
-the rest of the page keeps working.
+If `env.js` is missing, `core/config.js` says so in the console —
+naming the command that fixes it — and falls back to empty values, so
+sign-in and the support form switch off while the rest of the page keeps
+working. `npm run serve` and `npm test` regenerate it, so the only way
+to hit that is serving the folder some other way, or a deploy whose
+build step skips the generator.
 
 ## Accounts — sign in, sign up, register
 
