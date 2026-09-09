@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheeko auth debug</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+         margin: 0; padding: 24px; background: #0d1117; color: #e6edf3; }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  h2 { font-size: 13px; margin: 24px 0 8px; color: #8b949e;
+       text-transform: uppercase; letter-spacing: .08em; }
+  p.note { color: #8b949e; margin: 0 0 8px; max-width: 78ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  button { font: inherit; padding: 9px 16px; cursor: pointer; border-radius: 6px;
+           border: 1px solid #30363d; background: #21262d; color: #e6edf3; }
+  button:hover { background: #30363d; }
+  button.primary { border-color: #1f6feb; background: #1f6feb; }
+  .panel { background: #010409; border: 1px solid #30363d;
+           border-radius: 8px; padding: 12px 14px; }
+  .kv { display: grid; grid-template-columns: minmax(140px, max-content) 1fr;
+        gap: 2px 16px; }
+  .kv dt { color: #8b949e; }
+  .kv dd { margin: 0; word-break: break-all; }
+  #log { white-space: pre-wrap; word-break: break-word; background: #010409;
+         border: 1px solid #30363d; padding: 14px; border-radius: 8px;
+         max-height: 60vh; overflow-y: auto; }
+  #log div { padding: 1px 0; }
+  .ok { color: #3fb950; } .bad { color: #f85149; }
+  .warn { color: #d29922; } .dim { color: #8b949e; }
+  .head { color: #a5d6ff; font-weight: 700; margin-top: 8px !important; }
+</style>
+</head>
+<body>
+
+<h1>Cheeko auth debug</h1>
+<p class="note">
+  Temporary diagnostic — delete this file once Apple sign-in is settled.
+  Serve it over http(s) from an authorised domain; opening it as a
+  <code>file://</code> URL cannot work. The log survives a redirect
+  round-trip, so the redirect tests keep their history.
+</p>
+
+<h2>Environment</h2>
+<div class="panel"><dl class="kv" id="env"></dl></div>
+
+<h2>Provider config — read back from the Firebase project</h2>
+<div class="panel"><dl class="kv" id="cfg"></dl></div>
+
+<div class="row">
+  <button class="primary" id="applePopup">Apple — popup</button>
+  <button class="primary" id="appleRedirect">Apple — redirect</button>
+  <button id="googlePopup">Google — popup</button>
+  <button id="googleRedirect">Google — redirect</button>
+</div>
+<div class="row">
+  <button id="popupTest">Test popup blocker</button>
+  <button id="signout">Sign out</button>
+  <button id="copy">Copy log</button>
+  <button id="clear">Clear log</button>
+</div>
+
+<h2>Log</h2>
+<div id="log"></div>
+
+<script type="module">
+import { FIREBASE_CONFIG } from "./assets/js/core/config.js";
+import { signInWith, signOutOfFirebase, watchAuthState } from "./assets/js/core/firebase.js";
+
+const SDK = "https://www.gstatic.com/firebasejs/12.18.0";
+const LOG_KEY = "cheeko-debug-log";
+const T0_KEY = "cheeko-debug-t0";
+const PENDING_KEY = "cheeko-debug-pending";
+
+/* ---------- logging that survives a redirect ---------- */
+
+const logEl = document.getElementById("log");
+const t0 = Number(sessionStorage.getItem(T0_KEY) || Date.now());
+sessionStorage.setItem(T0_KEY, String(t0));
+let entries = JSON.parse(sessionStorage.getItem(LOG_KEY) || "[]");
+
+const esc = (s) => String(s).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+
+function paint() {
+  logEl.innerHTML = entries.map((e) =>
+    `<div class="${e.cls}">${String(e.t).padStart(6, " ")}ms  ${esc(e.msg)}</div>`).join("");
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function log(msg, cls = "") {
+  entries.push({ t: Date.now() - t0, cls, msg });
+  sessionStorage.setItem(LOG_KEY, JSON.stringify(entries));
+  paint();
+}
+
+const head = (msg) => log(msg, "head");
+paint();
+
+/* Never let a failure disappear into the console alone. */
+window.addEventListener("error", (e) => log(`window error: ${e.message}`, "bad"));
+window.addEventListener("unhandledrejection", (e) =>
+  log(`unhandled rejection: ${e.reason?.code || ""} ${e.reason?.message || e.reason}`, "bad"));
+
+/* ---------- small helpers ---------- */
+
+function row(dl, key, value, cls = "") {
+  dl.insertAdjacentHTML("beforeend",
+    `<dt>${esc(key)}</dt><dd class="${cls}">${esc(value)}</dd>`);
+}
+
+function describe(user) {
+  if (!user) return "null";
+  return JSON.stringify({
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName,
+    emailVerified: user.emailVerified,
+    isAnonymous: user.isAnonymous,
+    providers: user.providerData.map((p) => p.providerId),
+  }, null, 1);
+}
+
+/** Everything a Firebase auth error carries — the useful bits are nested. */
+function dumpError(error, label, elapsedMs) {
+  log(`${label} REJECTED after ${elapsedMs}ms`, "bad");
+  log(`code    : ${error?.code}`, "bad");
+  log(`message : ${error?.message}`, "bad");
+
+  const custom = error?.customData;
+  if (custom) {
+    const { _tokenResponse: token, ...rest } = custom;
+    if (Object.keys(rest).length) log(`custom  : ${JSON.stringify(rest)}`, "dim");
+    if (token) log(`token   : ${JSON.stringify(token, null, 1)}`, "dim");
+  }
+  if (error?.serverResponse) log(`server  : ${JSON.stringify(error.serverResponse)}`, "dim");
+
+  /* Apple reports a genuine server-side failure as a closed popup. If the
+     window was open long enough to have signed in, the code is a red herring. */
+  if (error?.code === "auth/popup-closed-by-user" && elapsedMs > 4000) {
+    log("^ open for >4s before 'closed by user' — likely a REAL failure, not a "
+      + "dismissal. Retry with the redirect button, which surfaces the true code.", "warn");
+  }
+  if (error?.code === "auth/internal-error") {
+    log("^ auth/internal-error on Apple almost always means Firebase could not "
+      + "exchange the code: wrong Team ID, Key ID or .p8 in Console -> Apple.", "warn");
+  }
+}
+
+/* Raw SDK access, reusing whatever app core/firebase.js already started. */
+async function raw() {
+  const [appSdk, authSdk] = await Promise.all([
+    import(`${SDK}/firebase-app.js`),
+    import(`${SDK}/firebase-auth.js`),
+  ]);
+  const app = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(FIREBASE_CONFIG);
+  return { auth: authSdk.getAuth(app), authSdk };
+}
+
+/* ---------- environment preflight ---------- */
+
+async function preflight() {
+  const dl = document.getElementById("env");
+  const isSecure = location.protocol === "https:" || location.hostname === "localhost"
+    || location.hostname === "127.0.0.1";
+
+  row(dl, "origin", location.origin, isSecure ? "ok" : "bad");
+  if (!isSecure) log("origin is not https and not localhost — popups and Apple will fail", "bad");
+
+  row(dl, "project", `${FIREBASE_CONFIG.projectId} (${FIREBASE_CONFIG.authDomain})`);
+  row(dl, "cookies", navigator.cookieEnabled ? "enabled" : "DISABLED",
+    navigator.cookieEnabled ? "ok" : "bad");
+
+  const ua = navigator.userAgent;
+  const safari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  const inApp = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|WebView/i.test(ua);
+  row(dl, "browser", safari ? "Safari (strict ITP)" : "Chromium/Gecko", safari ? "warn" : "");
+  if (inApp) {
+    row(dl, "in-app webview", "YES", "bad");
+    log("in-app browser detected — Apple blocks sign-in inside embedded webviews", "bad");
+  }
+
+  if (document.hasStorageAccess) {
+    try {
+      row(dl, "storage access", await document.hasStorageAccess() ? "granted" : "not granted", "dim");
+    } catch { /* not meaningful on every browser */ }
+  }
+
+  /* Is this exact host allowed to run sign-in at all? */
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/projects?key=${FIREBASE_CONFIG.apiKey}`);
+    const data = await res.json();
+    const domains = data.authorizedDomains || [];
+    const allowed = domains.includes(location.hostname);
+    row(dl, "authorised host", allowed ? `yes — ${location.hostname}` : `NO — ${location.hostname}`,
+      allowed ? "ok" : "bad");
+    row(dl, "domain list", domains.join(", "), "dim");
+    if (!allowed) {
+      log(`${location.hostname} is not in Authorised domains — every provider will fail `
+        + "with auth/unauthorized-domain. Add it in Console -> Authentication -> Settings.", "bad");
+    }
+  } catch (error) {
+    row(dl, "authorised host", `could not read: ${error.message}`, "warn");
+  }
+
+  /* The popup lands on this page; if it 404s, nothing can complete. */
+  try {
+    const res = await fetch(`https://${FIREBASE_CONFIG.authDomain}/__/auth/handler`,
+      { method: "GET", mode: "cors" });
+    row(dl, "auth handler", `HTTP ${res.status}`, res.ok ? "ok" : "bad");
+  } catch {
+    row(dl, "auth handler", "unreachable from here (CORS) — check manually", "dim");
+  }
+}
+
+/**
+ * Ask the Identity Toolkit to build the provider's authorise URL. This is
+ * the project's real server-side record: if Apple is not switched on, or has
+ * no Services ID, it fails here — before any window opens.
+ */
+async function probe(providerId, dl) {
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key=${FIREBASE_CONFIG.apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          providerId,
+          continueUri: `https://${FIREBASE_CONFIG.authDomain}/__/auth/handler`,
+        }),
+      });
+    const data = await res.json();
+
+    if (!res.ok || !data.authUri) {
+      const why = data.error?.message || `HTTP ${res.status}`;
+      row(dl, providerId, `NOT CONFIGURED — ${why}`, "bad");
+      log(`${providerId}: project has no usable config (${why})`, "bad");
+      return;
+    }
+
+    const url = new URL(data.authUri);
+    const clientId = url.searchParams.get("client_id");
+    row(dl, providerId, "configured", "ok");
+    row(dl, `  client_id`, clientId, "dim");
+    row(dl, `  redirect_uri`, url.searchParams.get("redirect_uri"), "dim");
+    row(dl, `  scope`, url.searchParams.get("scope"), "dim");
+  } catch (error) {
+    row(dl, providerId, `probe failed: ${error.message}`, "warn");
+  }
+}
+
+/* ---------- sign-in attempts ---------- */
+
+async function attemptPopup(provider) {
+  head(`--- ${provider} : popup ---`);
+  const started = Date.now();
+  try {
+    const user = await signInWith(provider);
+    log(`${provider} popup RESOLVED after ${Date.now() - started}ms`, "ok");
+    log(describe(user), "dim");
+  } catch (error) {
+    dumpError(error, `${provider} popup`, Date.now() - started);
+  }
+}
+
+/**
+ * Redirect mode. Slower to test, but it is the honest one: the result comes
+ * back through Firebase's own handler, so Apple's real error survives instead
+ * of being flattened into "popup closed".
+ */
+async function attemptRedirect(provider) {
+  head(`--- ${provider} : redirect (leaving the page) ---`);
+  sessionStorage.setItem(PENDING_KEY, provider);
+  try {
+    const { auth, authSdk } = await raw();
+    const p = provider === "google"
+      ? new authSdk.GoogleAuthProvider()
+      : new authSdk.OAuthProvider("apple.com");
+    if (provider === "apple") { p.addScope("email"); p.addScope("name"); }
+    await authSdk.signInWithRedirect(auth, p);
+  } catch (error) {
+    sessionStorage.removeItem(PENDING_KEY);
+    dumpError(error, `${provider} redirect start`, 0);
+  }
+}
+
+/** Runs on every load — collects the answer a redirect left behind. */
+async function collectRedirect() {
+  const pending = sessionStorage.getItem(PENDING_KEY);
+  try {
+    const { auth, authSdk } = await raw();
+    const result = await authSdk.getRedirectResult(auth);
+    if (result) {
+      log(`getRedirectResult -> USER (${pending || "unknown provider"})`, "ok");
+      log(describe(result.user), "dim");
+    } else if (pending) {
+      log(`getRedirectResult -> null, but a ${pending} redirect was pending. `
+        + "The provider sent nothing back — check the Services ID return URL.", "bad");
+    }
+  } catch (error) {
+    dumpError(error, `${pending || "redirect"} result`, 0);
+  } finally {
+    sessionStorage.removeItem(PENDING_KEY);
+  }
+}
+
+/* ---------- wiring ---------- */
+
+document.getElementById("applePopup").onclick = () => attemptPopup("apple");
+document.getElementById("googlePopup").onclick = () => attemptPopup("google");
+document.getElementById("appleRedirect").onclick = () => attemptRedirect("apple");
+document.getElementById("googleRedirect").onclick = () => attemptRedirect("google");
+
+document.getElementById("popupTest").onclick = () => {
+  const win = window.open("", "_blank", "width=420,height=520");
+  if (!win || win.closed) {
+    log("popup blocker: BLOCKED — allow pop-ups for this origin", "bad");
+  } else {
+    win.close();
+    log("popup blocker: popups allowed", "ok");
+  }
+};
+
+document.getElementById("signout").onclick = async () => {
+  try {
+    await signOutOfFirebase();
+    log("signOutOfFirebase() done", "warn");
+  } catch (error) {
+    log(`sign-out failed: ${error?.code} ${error?.message}`, "bad");
+  }
+};
+
+document.getElementById("copy").onclick = async () => {
+  const text = entries.map((e) => `${String(e.t).padStart(6, " ")}ms  ${e.msg}`).join("\n");
+  try {
+    await navigator.clipboard.writeText(text);
+    log("log copied to clipboard", "dim");
+  } catch {
+    log("clipboard blocked — select the log and copy by hand", "warn");
+  }
+};
+
+document.getElementById("clear").onclick = () => {
+  entries = [];
+  sessionStorage.removeItem(LOG_KEY);
+  paint();
+};
+
+/* ---------- boot ---------- */
+
+head(`=== page load : ${new Date().toISOString()} ===`);
+
+preflight();
+
+const cfgDl = document.getElementById("cfg");
+probe("apple.com", cfgDl).then(() => probe("google.com", cfgDl));
+
+watchAuthState((user) => {
+  log(`onAuthStateChanged -> ${user ? "USER" : "null"}`, user ? "ok" : "warn");
+  log(describe(user), "dim");
+}).then(() => log("auth listener registered", "dim"))
+  .catch((error) => log(`listener FAILED to register: ${error}`, "bad"));
+
+collectRedirect();
+</script>
+</body>
+</html>

@@ -47,7 +47,8 @@
 <main class="container page-main">
 
   <!-- ==========================================================
-       VIEW 1 — ONBOARDING WIZARD (signed out)
+       ONBOARDING WIZARD
+       Shown to everyone. Signing in only adds the device card.
        ========================================================== -->
   <div id="onboardingView">
 
@@ -245,96 +246,6 @@
             </div>
           </div>
 
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================================
-       VIEW 2 — PARENT DASHBOARD (signed in)
-       ========================================================== -->
-  <div class="is-hidden" id="dashboardView">
-
-    <section class="page-head">
-      <span class="status-pill"><span class="status-pill__dot"></span> Companion connected</span>
-      <h1 id="welcomeHeading">Welcome back, Parent!</h1>
-    </section>
-
-    <div class="dashboard">
-
-      <div class="dashboard__column">
-
-        <div class="panel device-card">
-          <div class="device-card__avatar" aria-hidden="true">🦊</div>
-          <div>
-            <div class="device-card__head">
-              <h3 class="device-card__name">Cheeko Pro (Fox)</h3>
-              <span class="device-card__status">Online</span>
-            </div>
-            <p class="device-card__meta">Serial <strong>CH-2938-4820</strong> · Firmware v1.2.5 (Latest)</p>
-            <div class="device-card__stats">
-              <span>🔋 <strong>85% (Charging)</strong></span>
-              <span>📶 <strong>Cheeko-Home-5G</strong></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3 class="panel__title">🛡️ Safety Controls &amp; Sound Cap</h3>
-
-          <div class="controls">
-            <div class="controls__row">
-              <div class="controls__head">
-                <span class="controls__name">Maximum Volume Cap</span>
-                <strong class="controls__value" id="volumeCapValue">65% (Recommended)</strong>
-              </div>
-              <input type="range" id="volumeCapSlider" min="30" max="100" value="65" aria-label="Maximum volume cap">
-            </div>
-
-            <div class="controls__row controls__row--split">
-              <div class="controls__label">
-                <span>Bedtime Mode Active</span>
-                <span class="controls__note">Mutes AI conversation chat features after 8:00 PM.</span>
-              </div>
-              <label class="switch">
-                <input type="checkbox" class="switch__input" id="bedtimeToggle" checked aria-label="Bedtime mode">
-                <span class="switch__track"></span>
-              </label>
-            </div>
-
-            <div class="controls__row">
-              <div class="controls__label">
-                <span>Local AI Safety Moderation</span>
-                <span class="controls__note">Filters prompts for educational topics &amp; speech correction.</span>
-              </div>
-              <select id="aiSafetySelect" aria-label="AI safety level">
-                <option value="strict">Strict Safety (Default)</option>
-                <option value="moderate">Moderate Guidance</option>
-                <option value="creative">Unrestricted Creative</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard__column">
-        <div class="panel">
-          <h3 class="panel__title">Quick Resources</h3>
-          <div class="resource-list" id="dashboardResources">
-            <button type="button" class="resource-list__item" data-tab="tutorials"><span aria-hidden="true">🎥</span> Watch Tutorials</button>
-            <button type="button" class="resource-list__item" data-tab="guide"><span aria-hidden="true">📖</span> Read User Guide</button>
-            <button type="button" class="resource-list__item" data-scroll-to="warrantySection"><span aria-hidden="true">🛡️</span> Device Warranty</button>
-            <button type="button" class="resource-list__item" data-tab="support"><span aria-hidden="true">💬</span> Support Helpdesk</button>
-            <button type="button" class="resource-list__item" id="manageAccountBtn"><span aria-hidden="true">👤</span> Manage Account</button>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3 class="panel__title">Go to Card Library</h3>
-          <div class="link-row">
-            <a href="https://cheekoai.in/" class="button button--soft">🎨 Make Your Own Studio</a>
-            <a href="https://cheekoai.in/cards.html" class="button button--soft">📚 Browse Catalog</a>
-          </div>
         </div>
       </div>
     </div>
@@ -605,7 +516,7 @@
         <h4 class="detail-block__title">Paired Devices</h4>
         <p><span class="detail-block__dot" aria-hidden="true">●</span> <strong>Cheeko Pro Fox (Active)</strong></p>
       </div>
-      <button type="button" class="button button--primary button--danger button--block" id="logoutBtn">🚪 Log Out Account</button>
+      <button type="button" class="button button--primary button--danger button--block" id="logoutBtn">Log Out Account</button>
     </div>
   </div>
 </div>

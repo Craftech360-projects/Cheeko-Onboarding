@@ -123,7 +123,12 @@ export function initParentAuth({ onSignIn, onSignOut } = {}) {
         await signInWith(provider);
         // The auth-state listener below takes it from here.
       } catch (error) {
-        if (SILENT_CODES.has(error?.code)) return;
+        if (SILENT_CODES.has(error?.code)) {
+          // Nothing to say to the parent, but never vanish without a
+          // trace: Apple can report a real failure as a closed popup.
+          console.warn(`${label} sign-in dismissed:`, error?.code);
+          return;
+        }
 
         console.error(`${label} sign-in failed:`, error);
         const copy = ERROR_COPY[error?.code]

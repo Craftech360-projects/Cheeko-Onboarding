@@ -24,11 +24,8 @@ import { initSupportForms } from "./features/support-forms.js";
 
 
 function boot() {
-  const onboardingView = byId("onboardingView");
-  const dashboardView = byId("dashboardView");
 
   const headerAccountButton = byId("headerAccountBtn");
-  const welcomeHeading = byId("welcomeHeading");
   const profileName = byId("profileName");
   const profileEmail = byId("profileEmail");
 
@@ -60,17 +57,16 @@ function boot() {
     else auth.openAuthModal();
   });
 
-  /** Swap between the onboarding wizard and the parent dashboard. */
+  /**
+   * The page itself reads the same signed in or out. Signing in only
+   * changes the header button and fills in the account modal.
+   */
   function render() {
     const { isLoggedIn, parentName, parentEmail } = appState;
-
-    setVisible(onboardingView, !isLoggedIn);
-    setVisible(dashboardView, isLoggedIn);
 
     headerAccountButton.textContent = isLoggedIn ? "Profile" : "Sign in";
 
     if (isLoggedIn) {
-      welcomeHeading.textContent = `Welcome back, ${parentName}!`;
       profileName.textContent = parentName;
       profileEmail.textContent = parentEmail;
     }
