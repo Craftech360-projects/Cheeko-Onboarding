@@ -16,7 +16,7 @@
  * While it is empty the support form reports a send failure instead of
  * pretending the message went out.
  */
-export const WEB3FORMS_ACCESS_KEY = "6d139e75-5158-4930-a39f-cd4e1f11b2f5s";
+export const WEB3FORMS_ACCESS_KEY = "6d139e75-5158-4930-a39f-cd4e1f11b2f5";
 
 /**
  * Firebase project that backs Sign in / Sign up — project "cheekoai".

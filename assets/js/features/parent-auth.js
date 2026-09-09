@@ -11,7 +11,7 @@
 
 import { byId, setVisible } from "../core/dom.js";
 import { openModal, closeModal } from "../components/modal.js";
-import { signInWithGoogle, signOutOfFirebase, watchAuthState } from "../core/firebase.js";
+import { signInWith, signOutOfFirebase, watchAuthState } from "../core/firebase.js";
 import {
   appState, signIn, signOut, advanceToStep, DEFAULT_PARENT_NAME,
 } from "../core/app-state.js";
@@ -27,28 +27,38 @@ const COPY = {
     prompt: "New user?",
     switchLabel: "Sign up",
     switchTo: MODE.SIGNUP,
+    // Apple's guidelines want the verb to match the action. Google's
+    // "Continue with" is theirs, and reads correctly either way.
+    appleLabel: "Sign in with Apple",
   },
   [MODE.SIGNUP]: {
     title: "Sign up",
     prompt: "Already have an account?",
     switchLabel: "Sign in",
     switchTo: MODE.SIGNIN,
+    appleLabel: "Sign up with Apple",
   },
 };
 
-/** Firebase error codes the parent can actually do something about. */
+/**
+ * Firebase error codes the parent can actually do something about.
+ * `{provider}` is filled in with the button they pressed.
+ */
 const ERROR_COPY = {
   "auth/popup-blocked":
-    "Your browser blocked the Google window. Allow pop-ups for this site and try again.",
+    "Your browser blocked the {provider} window. Allow pop-ups for this site and try again.",
   "auth/network-request-failed":
-    "We could not reach Google. Check your connection and try again.",
+    "We could not reach {provider}. Check your connection and try again.",
   "auth/unauthorized-domain":
     "Sign-in is not enabled for this address yet. Please let us know at hello@altio.me.",
   "auth/operation-not-allowed":
-    "Google sign-in is not switched on for this site yet. Please let us know at hello@altio.me.",
+    "That sign-in option is not switched on for this site yet. Please let us know at hello@altio.me.",
   // Firebase Authentication has not been enabled on the project at all.
   "auth/configuration-not-found":
-    "Google sign-in is not switched on for this site yet. Please let us know at hello@altio.me.",
+    "Sign-in is not switched on for this site yet. Please let us know at hello@altio.me.",
+  // Same email, other provider — only possible now that there are two.
+  "auth/account-exists-with-different-credential":
+    "You already have an account with that email. Try the other button to sign in.",
 };
 
 /** Closing the chooser is a choice, not a failure — say nothing. */
@@ -68,7 +78,7 @@ export function initParentAuth({ onSignIn, onSignOut } = {}) {
   const switchPrompt = byId("authSwitchPrompt");
   const switchLabel = byId("authSwitchLabel");
   const switchButton = byId("authSwitchBtn");
-  const googleButton = byId("authGoogleBtn");
+  const appleLabel = byId("authAppleLabel");
   const errorBanner = byId("authError");
 
   let mode = MODE.SIGNIN;
@@ -81,6 +91,7 @@ export function initParentAuth({ onSignIn, onSignOut } = {}) {
     title.textContent = copy.title;
     switchPrompt.textContent = copy.prompt;
     switchLabel.textContent = copy.switchLabel;
+    if (appleLabel) appleLabel.textContent = copy.appleLabel;
     card.classList.toggle(SIGNUP_CARD_CLASS, mode === MODE.SIGNUP);
     setVisible(errorBanner, false);
   }
@@ -92,23 +103,37 @@ export function initParentAuth({ onSignIn, onSignOut } = {}) {
 
   switchButton.addEventListener("click", () => renderMode(COPY[mode].switchTo));
 
-  googleButton.addEventListener("click", async () => {
-    setVisible(errorBanner, false);
-    googleButton.disabled = true;
+  /* One handler per button. Both are disabled while either is in
+     flight, so a second click cannot open a competing popup. */
+  const providerButtons = [
+    { button: byId("authGoogleBtn"), provider: "google", label: "Google" },
+    { button: byId("authAppleBtn"), provider: "apple", label: "Apple" },
+  ].filter((entry) => entry.button);
 
-    try {
-      await signInWithGoogle();
-      // The auth-state listener below takes it from here.
-    } catch (error) {
-      if (SILENT_CODES.has(error?.code)) return;
+  function setProvidersBusy(busy) {
+    providerButtons.forEach(({ button }) => { button.disabled = busy; });
+  }
 
-      console.error("Google sign-in failed:", error);
-      errorBanner.textContent = ERROR_COPY[error?.code]
-        || "Something went wrong signing in. Please try again.";
-      setVisible(errorBanner, true);
-    } finally {
-      googleButton.disabled = false;
-    }
+  providerButtons.forEach(({ button, provider, label }) => {
+    button.addEventListener("click", async () => {
+      setVisible(errorBanner, false);
+      setProvidersBusy(true);
+
+      try {
+        await signInWith(provider);
+        // The auth-state listener below takes it from here.
+      } catch (error) {
+        if (SILENT_CODES.has(error?.code)) return;
+
+        console.error(`${label} sign-in failed:`, error);
+        const copy = ERROR_COPY[error?.code]
+          || "Something went wrong signing in. Please try again.";
+        errorBanner.textContent = copy.replace("{provider}", label);
+        setVisible(errorBanner, true);
+      } finally {
+        setProvidersBusy(false);
+      }
+    });
   });
 
   /* One path for both a fresh sign-in and a session restored on load. */

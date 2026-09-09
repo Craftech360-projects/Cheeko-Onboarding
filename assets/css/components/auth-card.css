@@ -67,8 +67,17 @@
   color: var(--color-ink);
 }
 
-/* ---------- Google entry point ---------- */
-.google-button {
+/* ---------- provider buttons ----------
+   Google and Apple share one shape so the pair reads as a set. Only the
+   mark differs: Google keeps its four colours, Apple inherits ink. */
+.auth-card__providers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.oauth-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,23 +98,36 @@
               transform var(--speed-fast) ease;
 }
 
-.google-button:hover {
+.oauth-button:hover:not(:disabled) {
   transform: translateY(-1px);
   border-color: var(--color-brand);
   box-shadow: var(--shadow-sm);
 }
 
-.google-button:active { transform: none; }
+.oauth-button:active { transform: none; }
 
-.google-button:focus-visible {
+.oauth-button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.oauth-button:focus-visible {
   outline: 2px solid var(--color-brand);
   outline-offset: 3px;
 }
 
-.google-button__icon {
+.oauth-button__icon {
   flex: none;
   width: 22px;
   height: 22px;
+}
+
+/* The Apple mark is a solid glyph, so it takes the button's text colour
+   and needs a touch less width to sit optically level with Google's. */
+.oauth-button--apple .oauth-button__icon {
+  width: 19px;
+  margin-top: -2px;
 }
 
 /* Sign-in failures. Sits under the Google button so the eye lands on

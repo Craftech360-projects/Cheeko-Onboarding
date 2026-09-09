@@ -190,6 +190,48 @@ rather than a code one, so it was left off deliberately. To enable it,
 import `firebase-analytics.js` alongside the auth SDK in
 [`core/firebase.js`](assets/js/core/firebase.js).
 
+### Apple sign-in — not live yet
+
+The button is built and wired, but the provider is **not configured**;
+the Identity Toolkit API currently answers `OPERATION_NOT_ALLOWED: Code
+flow is not enabled for Apple`, so pressing it fails until the steps
+below are done.
+
+Unlike Google, this needs a **paid Apple Developer Program membership**
+(~$99/year). In the Apple developer portal:
+
+1. An **App ID** with the *Sign in with Apple* capability.
+2. A **Services ID** — this is the Client ID Firebase asks for. Under its
+   *Sign in with Apple* config, register the domain the page is served
+   from and set the Return URL to exactly:
+   `https://cheekoai.firebaseapp.com/__/auth/handler`
+3. A **Key** with *Sign in with Apple* enabled. Download the `.p8` file —
+   Apple lets you download it once — and note the **Key ID**.
+4. Note your **Team ID** from the membership page.
+
+Then in Firebase Console → Authentication → Sign-in method → Apple:
+enable it and paste the Services ID, Team ID, Key ID and the contents of
+the `.p8`.
+
+Two Apple behaviours worth designing around:
+
+- **The name arrives once.** Apple sends the user's name only on the very
+  first authorisation. On later sign-ins `displayName` is null, so
+  `parent-auth.js` falls back to "Parent". Capture it on first sign-in if
+  you ever need it stored.
+- **Hide My Email.** Users may hand over a `@privaterelay.appleid.com`
+  address instead of their real one. Mail to it only reaches them if the
+  sending domain is registered in Apple's private email relay config.
+
+### One account, two buttons
+
+Firebase defaults to one account per email address. A parent who signs up
+with Google and later presses Apple with the same address gets
+`auth/account-exists-with-different-credential`, which the card reports
+as "You already have an account with that email. Try the other button."
+Linking the two credentials into one account is extra work that has not
+been done.
+
 ### Sign in vs Sign up
 
 With Google there is only one flow. The two modes differ in wording

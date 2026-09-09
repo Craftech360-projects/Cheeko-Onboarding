@@ -1,1 +1,4 @@
 .DS_Store
+
+# Apple Sign in with Apple private keys — never commit these
+*.p8

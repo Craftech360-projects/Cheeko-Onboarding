@@ -30,17 +30,37 @@ function loadAuth() {
 }
 
 /**
- * Open the Google account chooser. Resolves with the signed-in user;
+ * Build the provider for one of the buttons on the auth card.
+ * Google has a dedicated class; Apple goes through the generic OAuth
+ * one, and needs its scopes asked for by name.
+ */
+function buildProvider(authSdk, name) {
+  if (name === "google") {
+    const provider = new authSdk.GoogleAuthProvider();
+    // Always offer the chooser — parents share devices with each other.
+    provider.setCustomParameters({ prompt: "select_account" });
+    return provider;
+  }
+
+  if (name === "apple") {
+    const provider = new authSdk.OAuthProvider("apple.com");
+    // Apple withholds both unless asked, and sends the name only on the
+    // very first sign-in.
+    provider.addScope("email");
+    provider.addScope("name");
+    return provider;
+  }
+
+  throw new Error(`Unknown sign-in provider: ${name}`);
+}
+
+/**
+ * Open the provider's sign-in window. Resolves with the signed-in user;
  * rejects with a Firebase error whose `.code` the caller can read.
  */
-export async function signInWithGoogle() {
+export async function signInWith(name) {
   const { auth, authSdk } = await loadAuth();
-
-  const provider = new authSdk.GoogleAuthProvider();
-  // Always offer the chooser — parents share devices with each other.
-  provider.setCustomParameters({ prompt: "select_account" });
-
-  const credential = await authSdk.signInWithPopup(auth, provider);
+  const credential = await authSdk.signInWithPopup(auth, buildProvider(authSdk, name));
   return credential.user;
 }
 
