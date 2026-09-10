@@ -566,8 +566,20 @@
       </div>
 
       <!-- The first three are required; the last is a genuine choice.
-           `data-consent-required` is what the JS counts, so making one
-           optional later is an attribute, not new code.
+           `data-consent-required` is what the JS counts.
+
+           The three required rows are HIDDEN for now. The gate ignores
+           any row carrying `is-hidden`, so dropping that class is all
+           it takes to bring a row — and its requirement — back. No JS
+           change either way.
+
+           NOTE: the API still records consent as the three timestamps
+           `consent_accepted_at` / `privacy_policy_accepted_at` /
+           `terms_accepted_at`, and `core/parent-directory.js` still
+           stamps them on every registration. While these rows are
+           hidden, those timestamps say a parent agreed to something
+           they were never shown. Fine for development; restore the
+           rows before real parents sign up.
 
            The two documents are the same Notion pages the Parent App
            links to, and they are what `terms_version` 2025-07-28 in
@@ -579,13 +591,13 @@
            must not lose it to reading the policy they are being asked
            to accept. -->
       <ul class="auth-card__consents">
-        <li>
+        <li class="is-hidden">
           <label class="consent">
             <input type="checkbox" id="consentGuardian" name="consentGuardian" data-consent-required>
             <span>I confirm I am the parent/guardian and consent to creating this account.</span>
           </label>
         </li>
-        <li>
+        <li class="is-hidden">
           <label class="consent">
             <input type="checkbox" id="consentPrivacy" name="consentPrivacy" data-consent-required>
             <span>I accept the
@@ -593,7 +605,7 @@
                  target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span>
           </label>
         </li>
-        <li>
+        <li class="is-hidden">
           <label class="consent">
             <input type="checkbox" id="consentTerms" name="consentTerms" data-consent-required>
             <span>I accept the

@@ -11,3 +11,5 @@ assets/js/core/env.js
 
 # Node is only for the settings generator and the browser tests.
 node_modules/
+.vercel
+.env*

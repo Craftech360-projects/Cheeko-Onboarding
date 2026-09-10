@@ -2,6 +2,9 @@
 // the checkbox? A parent reading the policy must not be recorded as
 // having accepted it.
 //
+// These two rows are hidden in the shipped markup for now; the test
+// un-hides them so the guard survives until they are restored.
+//
 // The href stays on: an <a href> is "interactive content" and an <a>
 // without one is not, so removing it to stop the navigation would test
 // something other than what ships. The new tab is allowed to open and
@@ -21,6 +24,16 @@ await page.evaluate(() => {
   document.getElementById("authModal").classList.add("modal--open");
   document.getElementById("authChoose").classList.add("is-hidden");
   document.getElementById("authRegisterForm").classList.remove("is-hidden");
+
+  // The two rows carrying the policy links are hidden in the shipped
+  // markup for now, so this un-hides them deliberately. The test is
+  // about the rows themselves — a link inside a <label> must not tick
+  // the box it sits in — and that has to keep holding for whenever they
+  // are put back. Skipping it while they are hidden would quietly drop
+  // the guard exactly until the day it matters again.
+  ["consentPrivacy", "consentTerms"].forEach((id) => {
+    document.getElementById(id).closest("li").classList.remove("is-hidden");
+  });
 });
 
 let fails = 0;

@@ -8,7 +8,7 @@
     "serve": "npm run env && python3 -m http.server 3000",
     "start": "npm run serve",
     "pretest": "npm run env",
-    "test": "node tests/api-environment.test.mjs && node tests/auth-flow.test.mjs && node tests/standin.test.mjs && node tests/consent-links.test.mjs && node tests/smoke.test.mjs",
+    "test": "node tests/build-env.test.mjs && node tests/api-environment.test.mjs && node tests/auth-flow.test.mjs && node tests/standin.test.mjs && node tests/consent-links.test.mjs && node tests/smoke.test.mjs",
     "test:cors": "node tests/real-api.test.mjs"
   },
   "devDependencies": {

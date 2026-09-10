@@ -284,7 +284,29 @@ export function initParentAuth({ onSignIn, onSignOut } = {}) {
     return invalid;
   }
 
-  const consentsGiven = () => requiredConsents.every((box) => box.checked);
+  /**
+   * Is a consent row on screen?
+   *
+   * Read from the row's own `is-hidden` class rather than computed
+   * visibility: the whole form is hidden whenever the card is showing
+   * the provider buttons, so `offsetParent` would call every row hidden
+   * and quietly satisfy the gate.
+   */
+  const isRowHidden = (box) =>
+    Boolean(box.closest("li")?.classList.contains("is-hidden"));
+
+  /**
+   * The required boxes actually being asked for. Hiding a row in the
+   * markup removes its requirement, and un-hiding restores it, with no
+   * change here — see the note in index.html about what that means for
+   * the consent timestamps the API still records.
+   *
+   * All three hidden leaves an empty list, and `every` on nothing is
+   * true: there is nothing left to require, which is correct.
+   */
+  const activeRequiredConsents = () => requiredConsents.filter((box) => !isRowHidden(box));
+
+  const consentsGiven = () => activeRequiredConsents().every((box) => box.checked);
 
   const canSubmit = () => invalidFields().length === 0 && consentsGiven();
 
@@ -354,12 +376,13 @@ export function initParentAuth({ onSignIn, onSignOut } = {}) {
           marketingOptIn: byId("consentMarketing").checked,
         }, { hasExistingRow });
 
-        // The three required boxes are not sent as flags: the API
-        // records consent as the timestamps
-        // `consent_accepted_at` / `privacy_policy_accepted_at` /
-        // `terms_accepted_at`, which `core/parent-directory.js` stamps.
-        // Continue cannot be reached without all three, so submitting
-        // *is* the consent.
+        // The required boxes are not sent as flags: the API records
+        // consent as the timestamps `consent_accepted_at` /
+        // `privacy_policy_accepted_at` / `terms_accepted_at`, which
+        // `core/parent-directory.js` stamps. When those rows are shown,
+        // Continue cannot be reached without them, so submitting *is*
+        // the consent. While they are hidden the timestamps still go
+        // out — see the note in index.html.
 
         completeSignIn(profile);
       } catch (error) {

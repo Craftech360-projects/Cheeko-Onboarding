@@ -11,7 +11,8 @@
  *   1. `?api=…` in the URL, which is remembered afterwards
  *   2. `localStorage`, from a previous `?api=…`
  *   3. `CHEEKO_PUBLIC_API_ENV` in `.env`
- *   4. nothing — the localStorage stand-in
+ *   4. nothing — the localStorage stand-in on localhost; anywhere else,
+ *      the "misconfigured" state (below)
  *
  * WHY THE FALLBACK IS THE STAND-IN AND NOT PRODUCTION
  * The app defaults to production when nothing is set. Copying that here
@@ -20,6 +21,14 @@
  * `TypeError: Failed to fetch` — no status, no body, nothing to read.
  * Someone who checks out this repo and runs it should get a page that
  * works, and that is the stand-in.
+ *
+ * WHY ONLY ON LOCALHOST
+ * On a deployed page the same fallback is silent data loss: a parent
+ * fills in the form, is told they are registered, and nothing reaches
+ * the server or the Parent App. So off localhost and 127.0.0.1 a
+ * missing, invalid or URL-less setting resolves to "misconfigured",
+ * which makes sign-in and registration fail visibly. There, only an
+ * explicit `?api=standin` reaches the stand-in.
  */
 
 import { API_BASE_URLS, API_ENV } from "./config.js";
@@ -112,6 +121,48 @@ function store(key, value) {
    Resolution
    -------------------------------------------------------------- */
 
+/** Where this page is being developed rather than served to parents. */
+const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1"]);
+
+/**
+ * Only here may a missing or broken setting fall back to the stand-in
+ * on its own. A location that cannot be read counts as not local: the
+ * cost of being wrong that way is an error message, the other way is
+ * lost registrations.
+ */
+function isLocalPage() {
+  try {
+    return LOCAL_HOSTNAMES.has(window.location.hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The base URL exported in the misconfigured state.
+ *
+ * It cannot be empty: `core/parent-directory.js` reads an empty base URL
+ * as "use the stand-in", which is exactly the path this state exists to
+ * close. A scheme no browser supports makes `fetch` reject before any
+ * request is built — nothing leaves the page, not even the parent's ID
+ * token — so every lookup fails, and sign-in and registration show
+ * their existing error instead of pretending to succeed.
+ */
+const MISCONFIGURED_BASE_URL = "cheeko-api-misconfigured:";
+
+/** A deployed page with no usable backend. Loud, and never the stand-in. */
+function misconfigured(reason, source) {
+  console.error(
+    `Cheeko: ${reason}. This page is not on localhost, so it will NOT fall `
+    + `back to the localStorage stand-in — a parent registering here would `
+    + `be told they had an account while nothing reached the server. `
+    + `Sign-in and registration will show an error until CHEEKO_PUBLIC_API_ENV `
+    + `and that environment's URL are set for this deployment and it is `
+    + `rebuilt. To test without a backend on purpose, add ?api=standin.`,
+  );
+  return { name: "misconfigured", baseUrl: MISCONFIGURED_BASE_URL, source };
+}
+
 function resolve() {
   const override = readOverride();
   const chosen = override || API_ENV;
@@ -119,6 +170,7 @@ function resolve() {
 
   // Nothing asked for at all.
   if (!chosen) {
+    if (!isLocalPage()) return misconfigured("CHEEKO_PUBLIC_API_ENV is not set", "default");
     return { name: "standin", baseUrl: "", source: "default" };
   }
 
@@ -128,6 +180,13 @@ function resolve() {
   }
 
   if (!API_ENVIRONMENTS.includes(chosen)) {
+    if (!isLocalPage()) {
+      return misconfigured(
+        `CHEEKO_PUBLIC_API_ENV is "${chosen}", which is not one of `
+        + `${API_ENVIRONMENTS.join(", ")}`,
+        "invalid",
+      );
+    }
     console.error(
       `CHEEKO_PUBLIC_API_ENV is "${chosen}", which is not one of `
       + `${API_ENVIRONMENTS.join(", ")}. Falling back to the local `
@@ -138,6 +197,13 @@ function resolve() {
 
   const baseUrl = API_BASE_URLS[chosen];
   if (!baseUrl) {
+    if (!isLocalPage()) {
+      return misconfigured(
+        `No URL is configured for the "${chosen}" environment `
+        + `(CHEEKO_PUBLIC_API_BASE_URL_${chosen.toUpperCase()} is empty)`,
+        `${source}, no URL`,
+      );
+    }
     console.warn(
       `No URL configured for the "${chosen}" environment `
       + `(CHEEKO_PUBLIC_API_BASE_URL_${chosen.toUpperCase()} is empty), `
@@ -177,12 +243,13 @@ function warnIfMixedContent(baseUrl, name) {
 const resolved = resolve();
 
 /**
- * Base URL of the parent-account API, or `""` for the stand-in.
+ * Base URL of the parent-account API, `""` for the stand-in, or
+ * `MISCONFIGURED_BASE_URL` for a deployed page with no usable backend.
  * `core/parent-directory.js` reads exactly this.
  */
 export const PARENT_API_BASE_URL = resolved.baseUrl;
 
-/** "production" | "development" | "local" | "standin". */
+/** "production" | "development" | "local" | "standin" | "misconfigured". */
 export const API_ENVIRONMENT = resolved.name;
 
 /** Which rule picked it, for the console line and for tests. */
@@ -197,7 +264,7 @@ if (API_ENVIRONMENT === "standin") {
     + "Parent App.",
     API_ENVIRONMENT_SOURCE,
   );
-} else {
+} else if (API_ENVIRONMENT !== "misconfigured") {
   console.info(
     "Cheeko: parent API is %s (%s, from %s).",
     API_ENVIRONMENT, PARENT_API_BASE_URL, API_ENVIRONMENT_SOURCE,

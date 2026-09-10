@@ -62,7 +62,6 @@ ok("first visit: asked to register", true);
 
 await page.fill("#registerPhone", "9123456780");
 await page.selectOption("#registerLanguage", "kn");
-await page.check("#consentGuardian"); await page.check("#consentPrivacy"); await page.check("#consentTerms");
 await page.click("#authRegisterSubmit");
 await page.waitForFunction(() => document.getElementById("headerAccountBtn").textContent === "Profile", { timeout: 5000 });
 ok("registered with no backend", true);

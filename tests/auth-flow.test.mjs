@@ -173,23 +173,50 @@ console.log("\n1. New parent: no account -> register -> signed in");
     await page.textContent("#headerAccountBtn") === "Sign in");
   check("Continue starts disabled", await page.isDisabled("#authRegisterSubmit"));
 
+  // --- which consent rows are on screen ---
+  // The three required ones are hidden for now; only the optional
+  // marketing box is shown.
+  const visibleConsents = await page.evaluate(() =>
+    Array.from(document.querySelectorAll(".auth-card__consents li"))
+      .filter((row) => !row.classList.contains("is-hidden"))
+      .map((row) => row.querySelector("input").id));
+  check("only the marketing consent is shown",
+    JSON.stringify(visibleConsents) === JSON.stringify(["consentMarketing"]),
+    JSON.stringify(visibleConsents));
+
   // --- gating ---
   await page.fill("#registerPhone", "98765432");
   check("Continue disabled on a short number", await page.isDisabled("#authRegisterSubmit"));
 
   await page.fill("#registerPhone", "9876543210");
-  check("Continue disabled until consents are ticked", await page.isDisabled("#authRegisterSubmit"));
+  check("Continue enables on name + number alone, with the ticks hidden",
+    await page.isEnabled("#authRegisterSubmit"));
 
-  await page.check("#consentGuardian");
-  await page.check("#consentPrivacy");
-  check("Continue disabled with two of three ticked", await page.isDisabled("#authRegisterSubmit"));
+  await page.evaluate(() => { document.getElementById("registerName").value = ""; });
+  await page.dispatchEvent("#registerName", "input");
+  check("an empty name still blocks Continue", await page.isDisabled("#authRegisterSubmit"));
+  await page.fill("#registerName", "Alex Johnson");
+  check("and filling it back in re-enables Continue", await page.isEnabled("#authRegisterSubmit"));
 
+  // The requirement follows the markup: un-hide a row and it gates
+  // again, with no JS change. This is what makes restoring the consent
+  // boxes a one-class edit.
+  await page.evaluate(() =>
+    document.getElementById("consentTerms").closest("li").classList.remove("is-hidden"));
+  await page.dispatchEvent("#registerName", "input");
+  check("un-hiding a required row restores its gate",
+    await page.isDisabled("#authRegisterSubmit"));
   await page.check("#consentTerms");
-  check("Continue enables on the third tick", await page.isEnabled("#authRegisterSubmit"));
-
-  await page.uncheck("#consentPrivacy");
-  check("Continue disables again if a box is unticked", await page.isDisabled("#authRegisterSubmit"));
-  await page.check("#consentPrivacy");
+  check("ticking the restored row satisfies it again",
+    await page.isEnabled("#authRegisterSubmit"));
+  await page.evaluate(() => {
+    const box = document.getElementById("consentTerms");
+    box.checked = false;
+    box.closest("li").classList.add("is-hidden");
+  });
+  await page.dispatchEvent("#registerName", "input");
+  check("re-hiding it drops the requirement again",
+    await page.isEnabled("#authRegisterSubmit"));
 
   await page.selectOption("#registerLanguage", "hi");
   await page.check("#consentMarketing");
@@ -472,7 +499,6 @@ console.log("\n7. Existing but empty profile: finish it with a PUT, not a POST")
 
   await page.fill("#registerName", "Priya Menon");
   await page.fill("#registerPhone", "9812345678");
-  await page.check("#consentGuardian"); await page.check("#consentPrivacy"); await page.check("#consentTerms");
   await page.click("#authRegisterSubmit");
   await page.waitForFunction(() => document.getElementById("headerAccountBtn").textContent === "Profile", { timeout: 8000 });
 
@@ -522,7 +548,6 @@ console.log("\n8. user-state 409 (row already there) still registers");
   await page.click("#authGoogleBtn");
   await page.waitForSelector("#authRegisterForm:not(.is-hidden)", { timeout: 5000 });
   await page.fill("#registerPhone", "9876543210");
-  await page.check("#consentGuardian"); await page.check("#consentPrivacy"); await page.check("#consentTerms");
   await page.click("#authRegisterSubmit");
   await page.waitForFunction(() => document.getElementById("headerAccountBtn").textContent === "Profile", { timeout: 8000 });
 
@@ -558,7 +583,6 @@ console.log("\n9. user-state 500: nothing is written, the parent can retry");
   await page.click("#authGoogleBtn");
   await page.waitForSelector("#authRegisterForm:not(.is-hidden)", { timeout: 5000 });
   await page.fill("#registerPhone", "9876543210");
-  await page.check("#consentGuardian"); await page.check("#consentPrivacy"); await page.check("#consentTerms");
   await page.click("#authRegisterSubmit");
   await page.waitForSelector("#authRegisterError:not(.is-hidden)", { timeout: 8000 });
 
