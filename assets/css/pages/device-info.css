@@ -1,0 +1,304 @@
+/* =============================================================
+   PAGE / DEVICE INFO
+   The Device Info section between the dashboard and the
+   documentation tabs: a card per toy on the signed-in account —
+   its name, its details, then its warranty — or one message card
+   while features/device-info.js has nothing to list. Shares the
+   support section's divider rhythm so the two read as sibling
+   blocks.
+
+   Mobile-first: on a phone each card is one column — name, a
+   grouped list of details, the warranty. From 760px the details
+   become a strip of tiles, so the card stays short and ends with
+   the warranty rather than with a column of empty space.
+   ============================================================= */
+
+.device-info {
+  margin-top: var(--space-section);
+  padding-top: var(--space-section);
+  border-top: 1px solid var(--color-line);
+  /* Clears the sticky header when "View Device Info" jumps here. */
+  scroll-margin-top: 64px;
+}
+
+.device-info__title {
+  max-width: 18ch;
+  margin-bottom: 10px;
+}
+
+/* Focused by script after that jump; not in the tab order, so no ring. */
+.device-info__title:focus { outline: none; }
+
+.device-info__lede {
+  max-width: 62ch;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* ---------- messages: signed out, loading, empty, error ---------- */
+.device-info__message {
+  margin: 0;
+  padding: 22px 18px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.device-info__message p { margin: 0 0 16px; }
+
+/* ---------- the account's toys ---------- */
+.device-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: rise-in .28s var(--ease-out);
+}
+
+.toy-card {
+  padding: 18px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* The parent's own name for the toy — wrap anything, however long. */
+.toy-card__name {
+  margin: 0 0 16px;
+  font-size: 19px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.toy-card__body {
+  display: grid;
+  gap: 20px;
+}
+
+/* "DEVICE", "WARRANTY" — small mono labels above each block. */
+.toy-card__label {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* ---------- details ----------
+   One hairline-framed group, a row per detail, label left and value
+   right — the grouped list a phone's own settings use, so it scans at
+   a glance even at 320px. */
+.toy-card__facts {
+  margin: 0;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.toy-card__fact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 10px 14px;
+}
+
+.toy-card__fact + .toy-card__fact { border-top: 1px solid var(--color-line); }
+
+.toy-card__fact dt {
+  flex: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.toy-card__fact dd {
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* The MAC — what support asks for — in mono so it reads character by
+   character. */
+.toy-card__fact .toy-card__mono {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+/* OTA auto-update: a small On / Off pill. */
+.toy-card__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background: var(--color-soft);
+  border-radius: var(--radius-pill);
+}
+
+.toy-card__pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.toy-card__pill--on {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+/* ---------- warranty ---------- */
+.device-warranty {
+  padding: 16px;
+  background: var(--color-soft);
+  border-radius: var(--radius-md);
+}
+
+.device-warranty--active { background: var(--color-success-soft); }
+
+.device-warranty__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+}
+
+.device-warranty__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-ink);
+}
+
+.device-warranty__status::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  background: var(--color-muted);
+  border-radius: 50%;
+}
+
+.device-warranty--active .device-warranty__status { color: var(--color-success); }
+.device-warranty--active .device-warranty__status::before { background: var(--color-success); }
+.device-warranty--missing .device-warranty__status::before { background: var(--color-accent); }
+
+.device-warranty__days {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.device-warranty__days strong {
+  margin-right: 2px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-ink);
+}
+
+.device-warranty__bar {
+  height: 6px;
+  margin: 14px 0 8px;
+  overflow: hidden;
+  background: var(--color-line);
+  border-radius: var(--radius-pill);
+}
+
+.device-warranty__fill {
+  display: block;
+  height: 100%;
+  background: var(--color-success);
+  border-radius: inherit;
+}
+
+.device-warranty--expired .device-warranty__fill { background: var(--color-muted); }
+
+.device-warranty__dates {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+.device-warranty__note {
+  margin: 10px 0 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.device-warranty__note:first-child { margin-top: 0; }
+
+.device-warranty__note a {
+  font-weight: 700;
+  color: var(--color-brand);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 600px) {
+  .toy-card,
+  .device-info__message { padding: 24px 26px; }
+
+  .toy-card__name { margin-bottom: 20px; font-size: 20px; }
+}
+
+/* Tiles, label above value, wrapping as the card narrows; a short last
+   row stretches to fill. Each tile draws its own top and left hairline
+   and is pulled 1px up and left, so the ones along the frame's edge
+   tuck under it and the grid reads as one ruled group. */
+@media (min-width: 760px) {
+  .toy-card__facts {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .toy-card__fact {
+    flex: 1 1 170px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
+    min-height: 0;
+    margin: -1px 0 0 -1px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--color-line);
+    border-left: 1px solid var(--color-line);
+  }
+
+  .toy-card__fact dt { font-size: 13px; }
+  .toy-card__fact dd { text-align: left; }
+}
+
+@media (min-width: 980px) {
+  .toy-card,
+  .device-info__message { padding: 28px 32px; }
+}

@@ -588,6 +588,121 @@ export async function createParentProfile(user, registration, { hasExistingRow =
   return writeRemoteProfile(complete, { hasExistingRow });
 }
 
+/* ==============================================================
+   The account's toys — the Device Info section
+   ============================================================== */
+
+/**
+ * The Parent App's own device list: every toy bound to the account,
+ * with its board, firmware, modes and last check-in — the same record
+ * the admin dashboard shows. Served by every host the app talks to.
+ */
+const DEVICES_PATH = "/toy/api/mobile/devices?page=1&limit=100";
+
+/**
+ * Each toy's warranty, as the backend records it: started on the toy's
+ * first activation in the Parent App, never restarted by a rebind.
+ * Newer than the device list, so a host can serve the list and answer
+ * 404 here — see `fetchAccountDevices`.
+ */
+const DEVICE_WARRANTY_PATH = "/toy/api/mobile/devices/warranty";
+
+/** The account's children, to name the one each toy is set up for. */
+const KIDS_PATH = "/toy/api/mobile/kids";
+
+/** The rows out of whichever wrapper a route used: `{data:{list}}`, `{data:[]}` or a bare array. */
+function rowsOf(payload) {
+  const found = [payload?.data?.list, payload?.data, payload?.list, payload].find(Array.isArray);
+  return found || [];
+}
+
+/** A MAC as a comparison key, so "aa:bb:…" and "AA-BB-…" are one toy. */
+const macKey = (mac) => asText(mac).replace(/[^0-9a-f]/gi, "").toUpperCase();
+
+/**
+ * The rows of a read the section can do without, or `null` when it
+ * failed. Logged rather than thrown: the toys are still worth showing,
+ * but a silent gap is how a missing deploy goes unnoticed.
+ */
+function optionalRows(settled, what) {
+  if (settled.status === "fulfilled" && settled.value.response.status === 200) {
+    return rowsOf(settled.value.payload);
+  }
+  const reason = settled.status === "rejected"
+    ? settled.reason
+    : toError(settled.value.response, settled.value.payload);
+  console.warn(`Could not read the account's ${what}; showing its devices without them.`, reason);
+  return null;
+}
+
+/**
+ * The Cheeko toys on the signed-in parent's account: each one's
+ * details, the child it is set up for, and its warranty.
+ *
+ * Three reads, in parallel. Only the device list is required — it is
+ * the section. The warranty and the children fill it in, and a failure
+ * in either leaves those fields empty instead of hiding every toy: a
+ * host without the warranty endpoint still answers the list, and
+ * `warranty` comes back `null` for the page to word as "not available".
+ *
+ * Resolves with a list, empty for an account with no toys. Resolves
+ * `null` in stand-in mode: there is no server to ask, and inventing a
+ * toy would be worse than saying so. Rejects with a ParentDirectoryError
+ * when the list itself fails, where `status` 404 means the host does not
+ * have the endpoint — the page words that differently from an outage.
+ */
+export async function fetchAccountDevices() {
+  if (!isBackendLive) return null;
+
+  const read = (path) => send(path, { method: "GET", timeoutMs: READ_TIMEOUT_MS });
+  const [devices, warranties, kids] = await Promise.allSettled(
+    [DEVICES_PATH, DEVICE_WARRANTY_PATH, KIDS_PATH].map(read),
+  );
+
+  if (devices.status === "rejected") throw devices.reason;
+  const { response, payload } = devices.value;
+  if (response.status !== 200) throw toError(response, payload);
+
+  const warrantyRows = optionalRows(warranties, "warranties");
+  const warrantyByMac = warrantyRows && new Map(warrantyRows.map((row) =>
+    [macKey(pick(row, "macAddress", "mac_address")), row?.warranty]));
+
+  const kidNameById = new Map((optionalRows(kids, "child profiles") || []).map((kid) =>
+    [asText(kid?.id), asText(kid?.name).trim() || asText(kid?.nickname).trim()]));
+
+  return rowsOf(payload).map((raw) => toAccountDevice(raw, { warrantyByMac, kidNameById }));
+}
+
+/** One toy, in the shape the Device Info section reads. */
+function toAccountDevice(raw, { warrantyByMac, kidNameById }) {
+  const macAddress = asText(pick(raw, "macAddress", "mac_address"));
+  const autoUpdate = pick(raw, "autoUpdate", "auto_update");
+  const warranty = warrantyByMac?.get(macKey(macAddress));
+
+  return {
+    macAddress,
+    name: asText(pick(raw, "deviceName", "device_name", "alias")).trim(),
+    kidName: kidNameById.get(asText(pick(raw, "kidId", "kid_id"))) || "",
+    board: asText(pick(raw, "board")),
+    firmware: asText(pick(raw, "appVersion", "app_version")),
+    // Stored as 1/0. Unknown stays null rather than reading as "off".
+    otaAutoUpdate: autoUpdate === undefined ? null : autoUpdate === true || Number(autoUpdate) === 1,
+    // null when the warranty could not be read, or had no row for this toy.
+    warranty: warranty ? toWarranty(warranty) : null,
+  };
+}
+
+function toWarranty(raw) {
+  const registered = raw.registered === true;
+  return {
+    registered,
+    status: asText(raw.status) || (registered ? "active" : "not_registered"),
+    start: asText(pick(raw, "warrantyStart", "warranty_start")),
+    end: asText(pick(raw, "warrantyEnd", "warranty_end")),
+    daysRemaining: Number(raw.daysRemaining) || 0,
+  };
+}
+
 /**
  * The browser's IANA zone, e.g. "Asia/Kolkata" — the app's
  * `ParentTimezoneSyncService.resolveForSignup`, which exists so an

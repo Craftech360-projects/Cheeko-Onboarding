@@ -93,6 +93,16 @@ async function openPage(browser, { onApi, user }) {
 
   if (onApi) await page.route(API_GLOB, onApi);
 
+  // The Device Info section asks for the account's toys, their warranty
+  // and its children whenever Firebase reports a user. Those calls are not
+  // what these tests are about, so they get their own route — registered
+  // last, so it wins — and stay out of the request logs the assertions
+  // above count. tests/device-info.test.mjs covers them.
+  await page.route(
+    (url) => /^\/toy\/api\/mobile\/(devices(\/warranty)?|kids)$/.test(url.pathname),
+    (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ code: 0, data: [] }) }),
+  );
+
   await page.addInitScript((u) => { window.__TEST_USER = u; }, user);
   await page.goto(`${ORIGIN}/index.html`);
   await page.waitForFunction(() => document.getElementById("headerAccountBtn")?.textContent?.length > 0);
@@ -226,6 +236,8 @@ console.log("\n1. New parent: no account -> register -> signed in");
 
   check("auth card closes once registered", !(await page.isVisible("#authRegisterForm")));
   check("header becomes Profile", await page.textContent("#headerAccountBtn") === "Profile");
+  check("and its icon shows the signed-in dot",
+    (await page.getAttribute("#headerAccountBtn", "class")).includes("account-button--signed-in"));
 
   // --- the request the page actually made ---
   const get = requests.find((r) => r.path === "/parent-profile" && r.method === "GET");
@@ -286,13 +298,20 @@ console.log("\n1. New parent: no account -> register -> signed in");
 
   // Only three rows are meant to be on screen; the rest are hidden
   // until there is something real behind them.
+  // The name heads the card; the rows under it are the rest.
   const visibleRows = await page.evaluate(() =>
-    Array.from(document.querySelectorAll("#accountModal .detail-block p"))
+    Array.from(document.querySelectorAll("#accountModal .profile-card__field"))
       .filter((row) => row.offsetParent !== null)
-      .map((row) => row.textContent.trim().split(":")[0]));
+      .map((row) => row.querySelector(".profile-card__label").textContent.trim()));
   check("the account modal shows name, email and phone only",
-    JSON.stringify(visibleRows) === JSON.stringify(["Name", "Email", "Phone"]),
+    (await page.isVisible("#profileName"))
+    && JSON.stringify(visibleRows) === JSON.stringify(["Email", "Phone"]),
     JSON.stringify(visibleRows));
+  check("its avatar shows the parent's initials",
+    (await page.textContent("#profileAvatar")).trim() === "AJ", await page.textContent("#profileAvatar"));
+  check("its title is plain text, no emoji",
+    (await page.textContent("#accountModalTitle")).trim() === "Manage Account",
+    await page.textContent("#accountModalTitle"));
 
   check("no unexpected console errors",
     realErrors(consoleErrors).length === 0, realErrors(consoleErrors).join(" | "));
@@ -443,6 +462,8 @@ console.log("\n6. Log out returns the page to signed-out");
   await page.click("#logoutBtn");
   await page.waitForFunction(() => document.getElementById("headerAccountBtn").textContent === "Sign in", { timeout: 5000 });
   check("back to Sign in", await page.textContent("#headerAccountBtn") === "Sign in");
+  check("and the signed-in dot is gone",
+    !(await page.getAttribute("#headerAccountBtn", "class")).includes("account-button--signed-in"));
   const phone = await page.evaluate(() => localStorage.getItem("cheeko_parent_phone"));
   check("phone number cleared from storage", phone === null, `phone=${phone}`);
   await context.close();

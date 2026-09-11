@@ -12,8 +12,8 @@
  * has finished so the card leaving is never cut off on its way out.
  */
 
-import { byId, qsa } from "../core/dom.js";
-import { appState, advanceToStep, FIRST_STEP, LAST_STEP } from "../core/app-state.js";
+import { byId, qsa, setVisible } from "../core/dom.js";
+import { appState, advanceToStep, completeOnboarding, FIRST_STEP, LAST_STEP } from "../core/app-state.js";
 
 const PANEL_WIDTH_PERCENT = 100 / LAST_STEP;
 
@@ -28,6 +28,8 @@ export function initOnboardingWizard() {
   const panels = qsa(".wizard__panel", track);
   const dots = qsa(".stepper__dot");
   const lines = qsa(".stepper__line");
+  const finishViews = qsa("[data-finish-view]", track);
+  const finishTitle = byId("finishTitle");
 
   let visibleStep = appState.onboardingStep;
 
@@ -92,6 +94,32 @@ export function initOnboardingWizard() {
   /* ---------- navigation ---------- */
   let settleTimer = 0;
 
+  /** Room left between the sticky header and a step brought into view. */
+  const HEADER_GAP = 12;
+
+  /**
+   * Put the step the parent just moved to where they can read it whole:
+   * its top just under the sticky header. Only moves the page when the
+   * card is cut off — top hidden above, or bottom below the screen — so a
+   * step that already fits is left where it is.
+   *
+   * Scrolls the window by hand rather than calling scrollIntoView on the
+   * card: the card sits in an overflow:hidden viewport, and scrollIntoView
+   * would scroll that sideways too, undoing the slide.
+   */
+  function bringStepIntoView() {
+    const card = panels[visibleStep - 1]?.querySelector(".step-card");
+    if (!card) return;
+
+    const header = document.querySelector(".site-header")?.offsetHeight ?? 0;
+    const { top, bottom } = card.getBoundingClientRect();
+    if (top >= header && bottom <= window.innerHeight) return;
+
+    // No behavior here: reset.css makes it smooth, or instant for anyone
+    // who asked for reduced motion.
+    window.scrollTo({ top: window.scrollY + top - header - HEADER_GAP });
+  }
+
   function showStep(step) {
     // No inline height yet means this is the first paint, where the
     // viewport is still as tall as the tallest panel. Snap, never animate.
@@ -126,7 +154,8 @@ export function initOnboardingWizard() {
   function paintStepper() {
     dots.forEach((dot, index) => {
       const step = index + 1;
-      dot.classList.toggle("stepper__dot--complete", step < appState.onboardingStep);
+      dot.classList.toggle("stepper__dot--complete",
+        step < appState.onboardingStep || appState.onboardingComplete);
       dot.classList.toggle("stepper__dot--active", step === visibleStep);
       dot.setAttribute("aria-current", step === visibleStep ? "step" : "false");
     });
@@ -136,16 +165,24 @@ export function initOnboardingWizard() {
     });
   }
 
+  /** Step 5 shows its actions until setup is finished, then the confirmation. */
+  function paintFinish() {
+    const view = appState.onboardingComplete ? "done" : "pending";
+    finishViews.forEach((element) => setVisible(element, element.dataset.finishView === view));
+  }
+
   /** Re-sync the whole wizard with app state. Safe to call any time. */
   function refresh({ goToCurrentStep = true } = {}) {
     if (goToCurrentStep) showStep(appState.onboardingStep);
     paintStepper();
+    paintFinish();
   }
 
   dots.forEach((dot) => {
     dot.addEventListener("click", () => {
       showStep(Number(dot.dataset.step));
       paintStepper();
+      bringStepIntoView();
     });
   });
 
@@ -160,13 +197,33 @@ export function initOnboardingWizard() {
       advanceToStep(next);
       showStep(next);
       paintStepper();
-      // Deliberately no scrolling: the viewport resizes in place, so
-      // moving the page under the parent only loses their reading spot.
+      // The button that was tapped sat at the bottom of the old step, so
+      // without this the parent lands partway down the new one.
+      bringStepIntoView();
     });
   });
 
-  // "Finish Onboarding" is intentionally inert — it opens nothing and
-  // navigates nowhere. Wire it here if that ever changes.
+  // Finishing swaps step 5 for its confirmation, in place. The viewport
+  // resizes itself — the observer sees the swap — and focus moves to the
+  // confirmation, because the button that had it is gone.
+  byId("finishOnboardingBtn")?.addEventListener("click", () => {
+    completeOnboarding();
+    paintStepper();
+    paintFinish();
+    finishTitle?.focus({ preventScroll: true });
+  });
+
+  // "View Device Info", beside the confirmation. The one place the wizard
+  // scrolls the page: here the parent asked to go somewhere else.
+  qsa("[data-scroll-to]", track).forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = byId(button.dataset.scrollTo);
+      // No behavior here: reset.css makes it smooth, or instant for
+      // anyone who asked for reduced motion.
+      target?.scrollIntoView({ block: "start" });
+      target?.querySelector("h2")?.focus({ preventScroll: true });
+    });
+  });
 
   refresh();
   // One late pass after web fonts settle, so the first height is right.

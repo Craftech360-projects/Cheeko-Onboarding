@@ -10,7 +10,14 @@
   background: var(--color-soft);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--speed-base);
+  transition: background var(--speed-base),
+              transform var(--speed-fast) ease;
+}
+
+/* A full-width row: it barely moves, or it would read as a squeeze. */
+.accordion__item:active {
+  transform: scale(var(--press-scale-row));
+  transition-duration: var(--speed-press);
 }
 
 .accordion__item--open { background: var(--color-tint); }
@@ -40,4 +47,6 @@
   font-size: 15.5px;
   font-weight: 500;
   color: var(--color-text-muted);
+  /* Eases in each time it opens (shown from display:none). */
+  animation: rise-in .22s var(--ease-out);
 }

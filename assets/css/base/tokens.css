@@ -31,8 +31,10 @@
 
   /* --- status --- */
   --color-success:      #2F6B4F;
+  --color-success-soft: #EAF2EC;   /* behind an active warranty */
   --color-danger:       #B3261E;
   --color-danger-dark:  #8F1D17;
+  --color-danger-tint:  #FBEDEB;   /* behind a quiet destructive button */
   --color-warning:      #C62828;
 
   /* --- typography --- */
@@ -60,6 +62,15 @@
   --ease-out:  cubic-bezier(.22, 1, .36, 1);
   --speed-fast: .15s;
   --speed-base: .25s;
+
+  /* --- press feedback ---
+     A tapped control sinks while held and springs back on release —
+     felt, not seen. Sized to the control: a small round icon can move
+     further than a full-width row before it reads as a jump. */
+  --speed-press:      .1s;
+  --press-scale-icon: .9;    /* 38–56px round controls, store logos   */
+  --press-scale:      .97;   /* buttons, pills, tabs, video cards     */
+  --press-scale-row:  .99;   /* full-width rows: FAQ items, shortcuts */
 }
 
 @media (min-width: 600px) {

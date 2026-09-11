@@ -1,10 +1,12 @@
 /* =============================================================
    COMPONENT / SCREEN SHOWCASE
-   "Here is the screen you are looking at" — a numbered blurb beside a
-   framed app screenshot. Used by the wizard to show a parent what the
-   Parent App will actually put in front of them at each step.
+   "Here is the screen you are looking at" — a numbered title and a few
+   short points beside a framed app screenshot. Used by the wizard to
+   show a parent what the Parent App will actually put in front of them
+   at each step.
 
-   Mobile: copy stacked above the phone, both centred.
+   Mobile: copy stacked above the phone — the copy left-aligned, since
+           points don't read centred; the phone centred.
    600px+:  two columns. `--reverse` puts the phone on the left, so a
             run of showcases zig-zags down the page.
    ============================================================= */
@@ -13,10 +15,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 26px;
-  margin-top: 22px;
-  padding: 26px 20px;
-  text-align: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 18px 16px;
   background: var(--color-soft);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-lg);
@@ -24,13 +25,17 @@
 
 /* ---------- copy column ---------- */
 .screen-showcase__copy {
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   gap: 10px;
   max-width: 46ch;
 }
 
+/* Hidden on phones: "02" repeats the "Step 02" right above it, and the
+   room goes to fitting the step on one screen. Shown again from 600px. */
 .screen-showcase__number {
+  display: none;
   font-family: var(--font-display);
   font-size: 34px;
   font-weight: 800;
@@ -48,11 +53,40 @@
   color: var(--color-ink);
 }
 
-.screen-showcase__text {
+/* The step as a few short points, in the order the app asks for them.
+   The words the parent actually taps are <strong>, so they stand out. */
+.screen-showcase__points {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-showcase__points li {
+  position: relative;
+  padding-left: 20px;
   font-size: 15.5px;
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--color-text-muted);
+}
+
+.screen-showcase__points li::before {
+  content: "";
+  position: absolute;
+  top: .6em;
+  left: 2px;
+  width: 7px;
+  height: 7px;
+  background: var(--color-brand);
+  border-radius: 50%;
+}
+
+.screen-showcase__points strong {
+  font-weight: 700;
+  color: var(--color-ink);
 }
 
 /* An optional caption under the phone — "Parent App · Registration". */
@@ -77,10 +111,17 @@
    transparent background, so they sit in the slot unwrapped. The shadow
    is a filter, not a box-shadow, so it follows the rounded phone edge
    instead of boxing the transparent corners. */
+/* Sized by the screen's height, not its width. A whole step — heading,
+   blurb, this, Next — has to fit below the sticky header so the parent
+   can read it and tap on without scrolling, and the screenshot is the one
+   part that can give. The subtracted figure is roughly everything else in
+   the step at its tallest — step 2's blurb on a 360px-wide Android phone. svh, where supported, ignores the phone's collapsing address
+   bar; vh is the fallback. */
 .screen-showcase__shot {
   flex: none;
-  width: 250px;
-  height: auto;
+  width: auto;
+  height: clamp(180px, calc(100vh - 575px), 460px);
+  height: clamp(180px, calc(100svh - 575px), 460px);
   filter: drop-shadow(0 18px 30px rgba(35, 26, 16, .18));
 }
 
@@ -90,19 +131,28 @@
     align-items: center;
     justify-content: center;
     gap: 40px;
+    margin-top: 22px;
     padding: 34px 30px;
     text-align: left;
   }
 
+  .screen-showcase__number { display: block; }
+
+  /* Side by side now, so the blurb no longer stacks on top of it. */
+  .screen-showcase__shot {
+    height: clamp(260px, calc(100vh - 430px), 540px);
+    height: clamp(260px, calc(100svh - 430px), 540px);
+  }
+
   .screen-showcase--reverse { flex-direction: row-reverse; }
 
-  .screen-showcase__copy { flex: 1; }
+  /* Beside the phone now: centred against it, not stretched down it. */
+  .screen-showcase__copy { flex: 1; align-self: auto; }
 }
 
 @media (min-width: 900px) {
   .screen-showcase { gap: 52px; padding: 40px 38px; }
 
-  .screen-showcase__shot { width: 268px; }
 
   .screen-showcase__number { font-size: 40px; }
   .screen-showcase__title  { font-size: 24px; }

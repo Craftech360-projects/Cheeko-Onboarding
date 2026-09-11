@@ -56,12 +56,21 @@
   border: 0;
   border-radius: 50%;
   cursor: pointer;
-  transition: background var(--speed-fast), color var(--speed-fast);
+  transition: background var(--speed-fast), color var(--speed-fast),
+              transform var(--speed-fast) ease;
 }
 
-.modal__close:hover {
-  color: var(--color-ink);
-  background: var(--color-soft);
+/* Only where there's a real hover: on a phone :hover sticks after a tap. */
+@media (hover: hover) {
+  .modal__close:hover {
+    color: var(--color-ink);
+    background: var(--color-soft);
+  }
+}
+
+.modal__close:active {
+  transform: scale(var(--press-scale-icon));
+  transition-duration: var(--speed-press);
 }
 
 .modal__body {

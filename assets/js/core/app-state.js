@@ -16,6 +16,7 @@ const STORAGE_KEYS = {
   parentPhone:    "cheeko_parent_phone",
   parentLanguage: "cheeko_parent_language",
   onboardingStep: "cheeko_onboard_step",
+  onboardingComplete: "cheeko_onboard_complete",
 };
 
 export const DEFAULT_PARENT_NAME = "Parent";
@@ -31,6 +32,7 @@ export const appState = {
   parentPhone:    storage.get(STORAGE_KEYS.parentPhone) || "",
   parentLanguage: storage.get(STORAGE_KEYS.parentLanguage) || "",
   onboardingStep: clampStep(parseInt(storage.get(STORAGE_KEYS.onboardingStep), 10)),
+  onboardingComplete: storage.get(STORAGE_KEYS.onboardingComplete) === "true",
 };
 
 function clampStep(step) {
@@ -83,6 +85,7 @@ export function signIn({ name, email, phone, language } = {}) {
 export function signOut() {
   appState.isLoggedIn = false;
   appState.onboardingStep = FIRST_STEP;
+  appState.onboardingComplete = false;
   appState.parentPhone = "";
   appState.parentLanguage = "";
 
@@ -100,6 +103,19 @@ export function advanceToStep(step) {
 
   appState.onboardingStep = next;
   storage.set(STORAGE_KEYS.onboardingStep, next);
+  notify();
+}
+
+/**
+ * Mark setup finished: every step done, and "Finish Onboarding" pressed.
+ * Remembered like the step, and cleared by signOut() with the rest of
+ * the run.
+ */
+export function completeOnboarding() {
+  appState.onboardingStep = LAST_STEP;
+  appState.onboardingComplete = true;
+  storage.set(STORAGE_KEYS.onboardingStep, LAST_STEP);
+  storage.set(STORAGE_KEYS.onboardingComplete, "true");
   notify();
 }
 

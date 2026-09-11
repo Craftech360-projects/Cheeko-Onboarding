@@ -1,6 +1,6 @@
 /**
  * features/support-forms.js
- * Warranty registration and the support ticket form.
+ * The support ticket form.
  *
  * A form carrying [data-email-subject] is sent for real: it POSTs to
  * Web3Forms, which relays it to the inbox behind WEB3FORMS_ACCESS_KEY.

@@ -37,8 +37,12 @@
   background: var(--color-surface);
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(35, 26, 16, .18);
-  transition: transform var(--speed-base);
+  transition: transform var(--speed-base), width var(--speed-fast) ease;
 }
+
+/* Held: the thumb stretches a little toward the side it's heading for. */
+.switch:active .switch__track::before { width: 30px; }
+.switch:active .switch__input:checked + .switch__track::before { transform: translateX(18px); }
 
 .switch__input:checked + .switch__track { background: var(--color-success); }
 .switch__input:checked + .switch__track::before { transform: translateX(22px); }

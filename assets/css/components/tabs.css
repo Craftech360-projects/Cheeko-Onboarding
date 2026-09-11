@@ -32,7 +32,13 @@
   cursor: pointer;
   transition: background var(--speed-fast),
               color var(--speed-fast),
-              border-color var(--speed-fast);
+              border-color var(--speed-fast),
+              transform var(--speed-fast) ease;
+}
+
+.tabs__tab:active {
+  transform: scale(var(--press-scale));
+  transition-duration: var(--speed-press);
 }
 
 .tabs__tab--active {
@@ -49,6 +55,10 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
+
+/* Eases in each time its tab is chosen: going from display:none to shown
+   restarts the animation. */
+.tab-panel { animation: rise-in .24s var(--ease-out); }
 
 .tab-panel__title { margin-bottom: 24px; }
 

@@ -24,7 +24,13 @@
               color var(--speed-fast);
 }
 
-.button:active   { transform: translateY(0); }
+/* Pressed: sinks fast, springs back at the normal speed. Outranks the
+   hover lift, so a press always reads as a press. */
+.button:active:not(:disabled) {
+  transform: scale(var(--press-scale));
+  transition-duration: var(--speed-press);
+}
+
 .button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
 .button:focus-visible {
@@ -42,10 +48,13 @@
   box-shadow: var(--shadow-brand);
 }
 
-.button--primary:hover {
-  transform: translateY(-2px);
-  background: var(--color-brand-dark);
-  box-shadow: 0 14px 30px rgba(240, 82, 29, .38);
+/* Only where there's a real hover: on a phone :hover sticks after a tap. */
+@media (hover: hover) {
+  .button--primary:hover {
+    transform: translateY(-2px);
+    background: var(--color-brand-dark);
+    box-shadow: 0 14px 30px rgba(240, 82, 29, .38);
+  }
 }
 
 /* ---------- soft ---------- */
@@ -59,9 +68,11 @@
   box-shadow: var(--shadow-xs);
 }
 
-.button--soft:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) {
+  .button--soft:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 /* ---------- outline ---------- */
@@ -72,11 +83,13 @@
   box-shadow: none;
 }
 
-.button--outline:hover {
-  color: var(--color-on-brand);
-  background: var(--color-ink);
-  border-color: var(--color-ink);
-  box-shadow: none;
+@media (hover: hover) {
+  .button--outline:hover {
+    color: var(--color-on-brand);
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    box-shadow: none;
+  }
 }
 
 /* ---------- danger ---------- */
@@ -86,7 +99,35 @@
   box-shadow: 0 10px 24px rgba(179, 38, 30, .28);
 }
 
-.button--danger:hover { background: var(--color-danger-dark); }
+@media (hover: hover) {
+  .button--danger:hover { background: var(--color-danger-dark); }
+}
+
+/* ---------- danger, quietly ----------
+   Paired with --soft for a destructive action that isn't the point of
+   the view (log out): the warning is in the text, not a red slab. */
+.button--danger-soft { color: var(--color-danger); }
+
+@media (hover: hover) {
+  .button--danger-soft:hover {
+    color: var(--color-danger-dark);
+    background: var(--color-danger-tint);
+    border-color: var(--color-danger);
+  }
+}
+
+/* ---------- icon ----------
+   A line icon before the label, drawn in the label's colour. */
+.button__icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 /* ---------- width ---------- */
 .button--block { width: 100%; }

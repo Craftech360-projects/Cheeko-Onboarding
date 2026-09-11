@@ -31,7 +31,13 @@
   box-shadow: var(--shadow-xs);
   cursor: pointer;
   transition: background var(--speed-base), color var(--speed-base),
-              border-color var(--speed-base), box-shadow var(--speed-base);
+              border-color var(--speed-base), box-shadow var(--speed-base),
+              transform var(--speed-fast) ease;
+}
+
+.stepper__dot:active {
+  transform: scale(var(--press-scale-icon));
+  transition-duration: var(--speed-press);
 }
 
 /* Invisible 48px hit area — the dot itself is below the touch minimum. */
@@ -106,11 +112,12 @@
 }
 
 /* ---------- step card ---------- */
+/* Tighter on phones, where a whole step has to fit one screen. */
 .step-card {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 26px 22px;
+  gap: 18px;
+  padding: 20px 18px;
   background: var(--color-surface);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-lg);
@@ -147,8 +154,49 @@
 
 .step-card__actions .button { width: 100%; }
 
+/* ---------- step 5, finished ----------
+   "Finish Onboarding" swaps the actions for this: a tick, the
+   confirmation, and the way on to Device Info beside it (under it on a
+   phone). */
+.step-done {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.step-done__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-on-brand);
+  background: var(--color-success);
+  border-radius: 50%;
+}
+
+.step-done__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Focused by script when the confirmation appears; it is not in the tab
+   order, so it gets no ring. */
+.step-done .step-card__heading:focus { outline: none; }
+
+.step-done .button { width: 100%; }
+
+/* It arrives because Finish was tapped: the card's content rises in, and
+   the tick lands a beat later with a small overshoot. */
+.step-done { animation: rise-in .3s var(--ease-out); }
+.step-done__icon { animation: pop-in .45s var(--ease-out) .06s both; }
+
 @media (min-width: 600px) {
-  .step-card { padding: 32px; }
+  .step-card { gap: 24px; padding: 32px; }
 
   .step-card__actions {
     flex-direction: row;
@@ -156,6 +204,17 @@
   }
 
   .step-card__actions .button { width: auto; }
+
+  .step-done {
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .step-done .button {
+    flex: none;
+    width: auto;
+  }
 }
 
 @media (min-width: 900px) {
@@ -196,6 +255,13 @@
     font-weight: 700;
     letter-spacing: 0;
     color: var(--color-muted);
+  }
+
+  /* Here the step's name hangs off the dot, and a shrink would drag it
+     along — so the press is a soft ring instead. */
+  .stepper__dot:active {
+    transform: none;
+    box-shadow: 0 0 0 5px var(--color-tint);
   }
 
   .stepper__dot--active::before   { color: var(--color-ink); }

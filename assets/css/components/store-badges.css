@@ -1,34 +1,37 @@
 /* =============================================================
    COMPONENT / STORE BADGES
-   App Store + Google Play download buttons for the Cheeko Parent App.
-   Stacks on mobile, sits side by side from 600px up.
+   App Store + Google Play links for the Cheeko Parent App: the two
+   store logos, side by side and centred in the card at every width,
+   each opening its store listing. No box behind them — the logos carry
+   their own colour.
    ============================================================= */
 
 .store-badges {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.store-badges__link {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  min-height: 60px;
-  padding: 10px 18px;
-  color: var(--color-on-dark);
-  background: var(--color-ink);
-  border: 1.5px solid var(--color-ink);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-xs);
-  transition: transform var(--speed-fast) ease,
-              box-shadow var(--speed-fast) ease;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 24px;
 }
 
-.store-badges__link:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+/* The padding makes a comfortable hit area around each logo, and gives
+   the focus ring somewhere to sit. */
+.store-badges__link {
+  display: block;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  transition: transform var(--speed-fast) ease;
+}
+
+/* Only where there's a real hover: on a phone :hover sticks after a tap. */
+@media (hover: hover) {
+  .store-badges__link:hover { transform: translateY(-2px); }
+}
+
+.store-badges__link:active {
+  transform: scale(var(--press-scale-icon));
+  transition-duration: var(--speed-press);
 }
 
 .store-badges__link:focus-visible {
@@ -36,49 +39,10 @@
   outline-offset: 3px;
 }
 
-/* Fixed square so the App Store icon and the Play triangle leave their
-   captions on the same left edge, whatever ratio each logo file has. */
-.store-badges__icon {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-}
-
-/* Scale to fit the box without distorting: the square App Store icon
-   fills it, the taller Play triangle fits by height. */
-.store-badges__icon img {
+/* One height for both; width follows each file's own ratio — the App
+   Store icon is square, the Play triangle a little taller than wide. */
+.store-badges__logo {
   display: block;
   width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.store-badges__text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.store-badges__caption {
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: rgba(255, 246, 232, .68);
-}
-
-.store-badges__name {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -.01em;
-}
-
-@media (min-width: 600px) {
-  .store-badges { flex-direction: row; }
-  .store-badges__link { flex: 1; }
+  height: 56px;
 }

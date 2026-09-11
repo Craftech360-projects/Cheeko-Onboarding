@@ -22,7 +22,13 @@
   cursor: pointer;
   transition: background var(--speed-fast),
               color var(--speed-fast),
-              border-color var(--speed-fast);
+              border-color var(--speed-fast),
+              transform var(--speed-fast) ease;
+}
+
+.segmented__option:active {
+  transform: scale(var(--press-scale));
+  transition-duration: var(--speed-press);
 }
 
 .segmented__option--active {

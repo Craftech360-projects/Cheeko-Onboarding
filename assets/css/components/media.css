@@ -31,9 +31,9 @@
 .video-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
-  padding: 10px 10px 16px;
+  padding: 10px 10px 20px;
   font: inherit;
   color: inherit;
   text-align: left;
@@ -46,16 +46,25 @@
   transition: transform var(--speed-fast) ease, box-shadow var(--speed-fast) ease;
 }
 
-.video-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+/* Only where there's a real hover: on a phone :hover sticks after a tap. */
+@media (hover: hover) {
+  .video-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
-/* The artwork is portrait; crop to 4:5 so a rail of six stays scannable.
-   The play badge sits dead centre, so a centred cover crop keeps it. */
+.video-card:active {
+  transform: scale(var(--press-scale));
+  transition-duration: var(--speed-press);
+}
+
+/* The artwork is a tall 9:16 portrait. 2:3 shows most of it and keeps
+   the cards tall, while a rail of six still fits the eye. The play badge
+   sits dead centre, so a centred cover crop keeps it. */
 .video-card__thumb {
   display: block;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 2 / 3;
   margin-bottom: 10px;
   overflow: hidden;
   background: var(--color-soft);

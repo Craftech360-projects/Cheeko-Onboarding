@@ -19,6 +19,7 @@
 @import url("base/reset.css");
 @import url("base/typography.css");
 @import url("base/utilities.css");
+@import url("base/motion.css");
 
 /* 2. layout */
 @import url("layout/page.css");
@@ -45,5 +46,5 @@
 /* 4. pages */
 @import url("pages/onboarding.css");
 @import url("pages/dashboard.css");
-@import url("pages/warranty.css");
+@import url("pages/device-info.css");
 @import url("pages/support.css");

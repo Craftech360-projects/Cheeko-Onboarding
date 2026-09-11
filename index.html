@@ -39,7 +39,9 @@
     </a>
 
     <div class="site-header__account">
-      <button type="button" class="account-button" id="headerAccountBtn">Sign in</button>
+      <!-- A user icon. main.js keeps its hidden label and tooltip on
+           "Sign in" or "Profile"; a dot marks a signed-in parent. -->
+      <button type="button" class="account-button" id="headerAccountBtn" title="Sign in"><svg class="account-button__icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.6-3.8 3.7-6.2 7.5-6.2s6.9 2.4 7.5 6.2"/></svg><span class="visually-hidden" id="headerAccountLabel">Sign in</span></button>
     </div>
   </div>
 </header>
@@ -84,31 +86,22 @@
                   <span class="step-card__eyebrow">Step 01</span>
                   <span>Download the Parent App</span>
                 </h3>
+                <!-- Just the two store logos, side by side. The visible
+                     captions went with the black boxes; each link's
+                     aria-label still names the store for screen readers. -->
                 <div class="store-badges">
                   <a class="store-badges__link"
                      href="https://apps.apple.com/in/app/cheekoai/id6748904798"
                      target="_blank" rel="noopener noreferrer"
                      aria-label="Download the Cheeko Parent App on the App Store">
-                    <span class="store-badges__icon" aria-hidden="true">
-                      <img src="assets/img/app-store.png" alt="" width="464" height="464">
-                    </span>
-                    <span class="store-badges__text">
-                      <span class="store-badges__caption">Download on the</span>
-                      <span class="store-badges__name">App Store</span>
-                    </span>
+                    <img class="store-badges__logo" src="assets/img/app-store.png" alt="" width="464" height="464">
                   </a>
 
                   <a class="store-badges__link"
                      href="https://play.google.com/store/apps/details?id=com.cheekoai.in"
                      target="_blank" rel="noopener noreferrer"
                      aria-label="Get the Cheeko Parent App on Google Play">
-                    <span class="store-badges__icon" aria-hidden="true">
-                      <img src="assets/img/google-play.png" alt="" width="659" height="734">
-                    </span>
-                    <span class="store-badges__text">
-                      <span class="store-badges__caption">Get it on</span>
-                      <span class="store-badges__name">Google Play</span>
-                    </span>
+                    <img class="store-badges__logo" src="assets/img/google-play.png" alt="" width="659" height="734">
                   </a>
                 </div>
               </div>
@@ -131,11 +124,11 @@
                   <div class="screen-showcase__copy">
                     <span class="screen-showcase__number">02</span>
                     <h4 class="screen-showcase__title">Fill in the Parent Details</h4>
-                    <p class="screen-showcase__text">
-                      Sign in with Apple or Google and the app carries your email across. Add the parent
-                      name, mobile number and the language Cheeko should speak, then tick the consent,
-                      privacy and terms boxes. Continue lights up once all three are checked.
-                    </p>
+                    <ul class="screen-showcase__points">
+                      <li>Sign in with <strong>Apple</strong> or <strong>Google</strong></li>
+                      <li>Add your name, phone number and Cheeko's language</li>
+                      <li>Tick the three consent boxes, then tap <strong>Continue</strong></li>
+                    </ul>
                   </div>
 
                   <div class="screen-showcase__device">
@@ -166,11 +159,11 @@
                   <div class="screen-showcase__copy">
                     <span class="screen-showcase__number">03</span>
                     <h4 class="screen-showcase__title">Pick Your Home Network</h4>
-                    <p class="screen-showcase__text">
-                      The app scans and lists every network in range with its security type. Tap your home
-                      Wi-Fi, type the password once, and Cheeko remembers it. Hit Scan Again if yours has
-                      not appeared yet.
-                    </p>
+                    <ul class="screen-showcase__points">
+                      <li>Tap your home Wi-Fi in the list</li>
+                      <li>Enter the password once — Cheeko remembers it</li>
+                      <li>Not there? Tap <strong>Scan Again</strong></li>
+                    </ul>
                   </div>
 
                   <div class="screen-showcase__device">
@@ -201,11 +194,12 @@
                   <div class="screen-showcase__copy">
                     <span class="screen-showcase__number">04</span>
                     <h4 class="screen-showcase__title">Run the Pre-flight Checks</h4>
-                    <p class="screen-showcase__text">
-                      Confirm the three things the app needs before it can reach the device: phone Bluetooth
-                      on, location services enabled, and Cheeko powered up. On Cheeko, go to Settings &rarr;
-                      Wi-Fi &rarr; Set up with phone to open pairing, then tap Continue.
-                    </p>
+                    <ul class="screen-showcase__points">
+                      <li>Turn on <strong>Bluetooth</strong> and <strong>Location</strong> on your phone</li>
+                      <li>Switch Cheeko on</li>
+                      <li>On Cheeko, open <strong>Settings &rarr; Wi-Fi &rarr; Set up with phone</strong></li>
+                      <li>Tap <strong>Continue</strong> in the app</li>
+                    </ul>
                   </div>
 
                   <div class="screen-showcase__device">
@@ -224,10 +218,13 @@
             </div>
           </div>
 
-          <!-- Step 5 — start exploring -->
+          <!-- Step 5 — start exploring. "Finish Onboarding" swaps the
+               actions for a confirmation, in place, with the way on to
+               Device Info beside it (features/onboarding-wizard.js).
+               Exactly one [data-finish-view] is visible at a time. -->
           <div class="wizard__panel">
             <div class="step-card">
-              <div>
+              <div data-finish-view="pending">
                 <h3 class="step-card__heading">
                   <span class="step-card__eyebrow">Step 05</span>
                   <span>Start Exploring</span>
@@ -235,9 +232,21 @@
                 <p class="step-card__text">You're all set. Slot a card into the top of Cheeko and it plays.</p>
               </div>
 
-              <div class="step-card__actions">
+              <div class="step-card__actions" data-finish-view="pending">
                 <a href="https://cheekoai.in/cards.html" class="button button--soft">📚 Browse Card Catalog</a>
                 <button type="button" class="button button--primary" id="finishOnboardingBtn">Finish Onboarding</button>
+              </div>
+
+              <div class="step-done is-hidden" data-finish-view="done">
+                <span class="step-done__icon" aria-hidden="true">✓</span>
+                <div class="step-done__copy">
+                  <h3 class="step-card__heading" id="finishTitle" tabindex="-1">
+                    <span class="step-card__eyebrow">Setup complete</span>
+                    <span>Your Cheeko is all set up!</span>
+                  </h3>
+                  <p class="step-card__text">It's configured and ready to play. Its details and warranty are in Device Info.</p>
+                </div>
+                <button type="button" class="button button--primary" data-scroll-to="deviceInfoSection">View Device Info</button>
               </div>
             </div>
           </div>
@@ -248,26 +257,38 @@
   </div>
 
   <!-- ==========================================================
-       WARRANTY & DEVICE REGISTRATION (always visible)
+       DEVICE INFO (always visible)
+       Every toy on the signed-in parent's account — its details from the
+       Parent App's device list, then its warranty — read from the backend
+       by features/device-info.js. It replaced a "Register your warranty"
+       form that registered nothing: a warranty starts on its own the
+       first time a toy is activated in the Parent App. Exactly one
+       [data-device-view] is visible at a time.
        ========================================================== -->
-  <section class="warranty-section" id="warrantySection">
-    <h2 class="warranty-section__title">Warranty &amp; Device Registration</h2>
-    <p class="warranty-section__lede"><strong>1-Year Limited Manufacturer Warranty</strong> on materials and hardware defects.</p>
+  <section class="device-info" id="deviceInfoSection">
+    <h2 class="device-info__title" tabindex="-1">Device Info</h2>
+    <p class="device-info__lede">Your Cheeko's details and <strong>6-month warranty</strong>, straight from your account.</p>
 
-    <div class="warranty-section__card">
-      <h3 class="warranty-section__subtitle">Register Your Warranty</h3>
-      <form class="form" id="warrantyForm" data-success-message="warrantySuccess">
-        <div>
-          <label for="warrantySerial">Serial Number (found under device)</label>
-          <input type="text" id="warrantySerial" placeholder="CH-XXXX-XXXX" required>
-        </div>
-        <div>
-          <label for="warrantyDate">Purchase Date</label>
-          <input type="date" id="warrantyDate" required>
-        </div>
-        <button type="submit" class="button button--primary">Register Device</button>
-      </form>
-      <div class="form-success is-hidden" id="warrantySuccess" role="status">🎉 Device successfully registered for 1-year warranty coverage!</div>
+    <div id="deviceInfoPanel" aria-live="polite">
+      <p class="device-info__message" data-device-view="checking">Checking your account…</p>
+
+      <div class="device-info__message is-hidden" data-device-view="signed-out">
+        <p>Sign in to see your Cheeko's details and warranty.</p>
+        <button type="button" class="button button--primary" data-device-signin>Sign in</button>
+      </div>
+
+      <p class="device-info__message is-hidden" data-device-view="loading">Loading your devices…</p>
+
+      <ul class="device-list is-hidden" id="deviceList" data-device-view="list"></ul>
+
+      <p class="device-info__message is-hidden" data-device-view="empty">No Cheeko is paired to this account yet. Once you pair your toy in the Parent App, its details and warranty show up here.</p>
+
+      <div class="device-info__message is-hidden" data-device-view="error" role="alert">
+        <p>We couldn't load your devices just now. Check your connection and try again.</p>
+        <button type="button" class="button button--soft" data-device-retry>Try again</button>
+      </div>
+
+      <p class="device-info__message is-hidden" data-device-view="unavailable" id="deviceUnavailableText"></p>
     </div>
   </section>
 
@@ -640,7 +661,7 @@
 <div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
   <div class="modal__dialog">
     <div class="modal__header">
-      <span class="modal__title" id="accountModalTitle">👤 Manage Account</span>
+      <span class="modal__title" id="accountModalTitle">Manage Account</span>
       <button type="button" class="modal__close" data-modal-close aria-label="Close">&times;</button>
     </div>
     <div class="modal__body">
@@ -656,19 +677,25 @@
              Paired Devices  hardcoded; nothing reports paired hardware
                              to this page yet.
            To bring one back, drop its `is-hidden`. -->
-      <div class="detail-block">
-        <h4 class="detail-block__title">Parent Account Details</h4>
-        <p>Name: <strong id="profileName">N/A</strong></p>
-        <p>Email: <strong id="profileEmail">N/A</strong></p>
-        <p>Phone: <strong id="profilePhone">N/A</strong></p>
-        <p class="is-hidden">Cheeko speaks: <strong id="profileLanguage">N/A</strong></p>
-        <p class="is-hidden">Subscription: <strong>Cheeko Pro Plus</strong></p>
+      <!-- The usual account panel: initials avatar beside the name, then a
+           row per detail. main.js fills in the avatar from the name. -->
+      <div class="profile-card">
+        <div class="profile-card__head">
+          <span class="profile-card__avatar" id="profileAvatar" aria-hidden="true">P</span>
+          <div class="profile-card__who">
+            <p class="profile-card__name" id="profileName">N/A</p>
+            <p class="profile-card__role">Parent account</p>
+          </div>
+        </div>
+        <ul class="profile-card__fields">
+          <li class="profile-card__field"><span class="profile-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg></span><span class="profile-card__label">Email</span><span class="profile-card__value" id="profileEmail">N/A</span></li>
+          <li class="profile-card__field"><span class="profile-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 3.5h3.2l1.6 4.2-2.1 1.3a11 11 0 0 0 5.3 5.3l1.3-2.1 4.2 1.6V17a2.5 2.5 0 0 1-2.5 2.5A15.5 15.5 0 0 1 2.5 6 2.5 2.5 0 0 1 5 3.5z"/></svg></span><span class="profile-card__label">Phone</span><span class="profile-card__value" id="profilePhone">N/A</span></li>
+          <li class="profile-card__field is-hidden"><span class="profile-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 5h16v10H9l-5 4z"/></svg></span><span class="profile-card__label">Cheeko speaks</span><span class="profile-card__value" id="profileLanguage">N/A</span></li>
+          <li class="profile-card__field is-hidden"><span class="profile-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span><span class="profile-card__label">Subscription</span><span class="profile-card__value">Cheeko Pro Plus</span></li>
+          <li class="profile-card__field is-hidden"><span class="profile-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M10 17h4"/></svg></span><span class="profile-card__label">Paired devices</span><span class="profile-card__value">Cheeko Pro Fox · Active</span></li>
+        </ul>
       </div>
-      <div class="detail-block is-hidden">
-        <h4 class="detail-block__title">Paired Devices</h4>
-        <p><span class="detail-block__dot" aria-hidden="true">●</span> <strong>Cheeko Pro Fox (Active)</strong></p>
-      </div>
-      <button type="button" class="button button--primary button--danger button--block" id="logoutBtn">Log Out Account</button>
+      <button type="button" class="button button--soft button--danger-soft button--block" id="logoutBtn"><svg class="button__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"/><path d="m16 16 4-4-4-4"/><path d="M20 12H10"/></svg>Log out</button>
     </div>
   </div>
 </div>

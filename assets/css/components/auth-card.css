@@ -50,7 +50,13 @@
   border: 0;
   border-radius: 50%;
   cursor: pointer;
-  transition: background var(--speed-fast), color var(--speed-fast);
+  transition: background var(--speed-fast), color var(--speed-fast),
+              transform var(--speed-fast) ease;
+}
+
+.auth-card__close:active {
+  transform: scale(var(--press-scale-icon));
+  transition-duration: var(--speed-press);
 }
 
 .auth-card__close:focus-visible {
@@ -58,9 +64,12 @@
   outline-offset: 2px;
 }
 
-.auth-card__close:hover {
-  color: var(--color-ink);
-  background: var(--color-soft);
+/* Only where there's a real hover: on a phone :hover sticks after a tap. */
+@media (hover: hover) {
+  .auth-card__close:hover {
+    color: var(--color-ink);
+    background: var(--color-soft);
+  }
 }
 
 .auth-card__title {
@@ -108,13 +117,18 @@
               transform var(--speed-fast) ease;
 }
 
-.oauth-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  border-color: var(--color-brand);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) {
+  .oauth-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: var(--color-brand);
+    box-shadow: var(--shadow-sm);
+  }
 }
 
-.oauth-button:active { transform: none; }
+.oauth-button:active:not(:disabled) {
+  transform: scale(var(--press-scale));
+  transition-duration: var(--speed-press);
+}
 
 .oauth-button:disabled {
   opacity: .55;
@@ -214,10 +228,17 @@
   background: none;
   border: 0;
   cursor: pointer;
-  transition: color var(--speed-fast);
+  transition: color var(--speed-fast), transform var(--speed-fast) ease;
 }
 
-.auth-card__switch-link:hover { color: var(--color-brand-dark); }
+@media (hover: hover) {
+  .auth-card__switch-link:hover { color: var(--color-brand-dark); }
+}
+
+.auth-card__switch-link:active {
+  transform: scale(var(--press-scale));
+  transition-duration: var(--speed-press);
+}
 
 .auth-card__switch-link:focus-visible {
   outline: 2px solid var(--color-brand);
@@ -229,8 +250,10 @@
   transition: transform var(--speed-fast) ease;
 }
 
-.auth-card__switch-link:hover .auth-card__switch-arrow {
-  transform: translateX(3px);
+@media (hover: hover) {
+  .auth-card__switch-link:hover .auth-card__switch-arrow {
+    transform: translateX(3px);
+  }
 }
 
 @media (min-width: 600px) {

@@ -44,18 +44,18 @@ a conventional static-site structure.
 
 | Layer | Contains | May override |
 |---|---|---|
-| `base/` | tokens, reset, type scale, `is-*` utilities | — |
+| `base/` | tokens, reset, type scale, `is-*` utilities, shared entrance keyframes | — |
 | `layout/` | container, header, footer, ticker | base |
 | `components/` | auth-card, button, form, panel, phone, modal, tabs, accordion, switch, store-badges, lists, media, screen-showcase, segmented | base, layout |
-| `pages/` | onboarding, dashboard, support | everything above |
+| `pages/` | onboarding, dashboard, device-info, support | everything above |
 
 Media queries sit next to the rules they modify, mobile-first
 (`min-width` only). Breakpoints: **600px** tablet, **900px** desktop.
 
 ### Showing the app's own screens
 
-Steps 2, 3 and 4 each carry a **screen showcase**: a numbered blurb beside a
-screenshot of the Parent App screen that step is talking about. Two
+Steps 2, 3 and 4 each carry a **screen showcase**: a numbered title and a few
+short points beside a screenshot of the Parent App screen that step is talking about. Two
 components make it:
 
 - `components/phone.css` — a CSS-only iPhone shell for *unframed* exports:
@@ -91,10 +91,11 @@ that knows about more than one feature.
 | `components/info-tabs.js` | support tab strip |
 | `components/faq-accordion.js` | single-open FAQ |
 | `components/video-modal.js` | simulated tutorial player |
-| `features/onboarding-wizard.js` | the five-step slider and progress rail |
+| `features/onboarding-wizard.js` | the five-step slider and progress rail; Finish's confirmation and its jump to Device Info |
 | `features/parent-auth.js` | sign in / sign up / register card, log out |
 | `features/parent-dashboard.js` | safety controls, resource shortcuts |
-| `features/support-forms.js` | warranty (demo) + support ticket form (sends email) |
+| `features/device-info.js` | every toy on the signed-in account — details and warranty — from the backend |
+| `features/support-forms.js` | support ticket form (sends email) |
 
 ## Naming conventions
 
@@ -186,8 +187,9 @@ itself has no build step and no runtime dependencies.
 - The **Download the Parent App** step (step 1) links to the live stores:
   [App Store](https://apps.apple.com/in/app/cheekoai/id6748904798) ·
   [Google Play](https://play.google.com/store/apps/details?id=com.cheekoai.in)
-- The warranty form is a **front-end simulation**. Nothing is sent
-  anywhere; wizard progress is remembered in `localStorage` only.
+- Wizard progress is remembered in `localStorage` only.
+- The **Device Info** section, warranty included, is read from the
+  backend, not entered — see [Device info](#device-info).
 
 ## Settings and `.env`
 
@@ -657,6 +659,59 @@ greet a returning parent before the lookup finishes. "Paired Devices"
 and the subscription line in the account modal are still hardcoded
 markup — there is nothing behind them yet.
 
+### Device info
+
+The Device Info section shows a card per toy on the signed-in parent's
+account: its name, then child profile, MAC ID, firmware, board and OTA
+auto-update, then its warranty. It is laid out mobile-first — one
+column on a phone, the details as a strip of tiles from 760px. Three
+reads, in parallel:
+
+```
+GET {base}/toy/api/mobile/devices?page=1&limit=100   the toys — required
+    200 -> { data: { list: [{ macAddress, deviceName, kidId, board, appVersion,
+                              autoUpdate, … }] } }
+GET {base}/toy/api/mobile/devices/warranty           each toy's warranty — optional
+    200 -> { data: [{ macAddress, deviceName, warranty: { registered, status,
+                      warrantyStart, warrantyEnd, daysRemaining, warrantyMonths } }] }
+GET {base}/toy/api/mobile/kids                       child names — optional
+    200 -> [{ id, name, … }]
+```
+
+`/devices` is the Parent App's own list and is live on every host. It
+is the section: if it fails, the section shows its error. The other two
+only fill it in. Warranties are matched to toys by MAC, ignoring case
+and separators. A failed or missing `/devices/warranty` (a host that
+hasn't deployed it answers 404) leaves every toy listed, and each
+warranty block says the details aren't available yet. A failed `/kids`
+leaves "Child profile" as a dash. Both failures are logged with
+`console.warn`, so a missing deploy stays visible.
+
+It replaced a "Register your warranty" form that registered nothing. A
+warranty is not something a parent files: the backend starts it the
+first time a toy is activated with its 6-digit code in the Parent App —
+**6 months**, in its own `device_warranty` table keyed by MAC, so an
+unbind and rebind never restarts it. The heading said "1-Year", which
+the backend never granted; it now says 6-month.
+
+`status` is `active`, `expired` or `not_registered`. The last is real:
+toys activated before warranties were recorded have no row until their
+next activation or until an admin adds one, so the card says so and
+points the parent at support with the MAC ID.
+
+The endpoint is parent-scoped and deliberately narrower than the admin
+view of the same record (`GET /toy/admin/device/:mac/warranty`, super-
+admin only). It never returns `firstUser`: a warranty survives a change
+of owner, so that can be the previous owner's name.
+
+The section follows Firebase's sign-in state directly, not the page's
+"signed in" flag, because it only needs an ID token and the flag waits
+on the profile lookup. States: signed out (with a Sign in button),
+loading, the list, no toys, error (with Try again), and unavailable —
+stand-in mode, or a server that answers 404 for the device list. Device
+and child names are the parent's own text and are only ever inserted
+with `textContent`.
+
 ## Contact Support email
 
 The Contact Support form really sends. It POSTs to
@@ -699,4 +754,4 @@ record issued numbers — a backend — or more digits.
 subject line) and `data-error-message` (the id of its error banner).
 Fields are read by their `name` attribute, so every control that should
 appear in the email needs one. Without `data-email-subject` a form stays
-a demo, which is what the warranty form still is.
+a demo; no form on the page uses that path any more.

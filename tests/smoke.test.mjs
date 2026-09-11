@@ -68,7 +68,45 @@ ok("parent-directory agrees with the resolver",
 
 // Page furniture still works.
 ok("header button rendered", (await page.textContent("#headerAccountBtn")) === "Sign in");
+const account = await page.evaluate(() => {
+  const button = document.getElementById("headerAccountBtn");
+  const box = button.getBoundingClientRect();
+  return {
+    icon: Boolean(button.querySelector("svg.account-button__icon")),
+    width: Math.round(box.width), height: Math.round(box.height),
+    labelOnScreen: document.getElementById("headerAccountLabel").getBoundingClientRect().width > 1,
+    title: button.title,
+  };
+});
+ok("header button is a round user icon", account.icon && account.width === account.height, JSON.stringify(account));
+ok("with no visible text, but a label and tooltip that say Sign in",
+  !account.labelOnScreen && account.title === "Sign in", JSON.stringify(account));
 ok("wizard rendered 5 panels", (await page.locator(".wizard__panel").count()) === 5);
+
+// Step 1: the two store logos, bare and side by side, each opening its store.
+const stores = await page.$$eval(".store-badges__link", (links) => links.map((a) => {
+  const img = a.querySelector("img");
+  const box = a.getBoundingClientRect();
+  return {
+    href: a.href, target: a.target, rel: a.rel, label: a.getAttribute("aria-label") || "",
+    loaded: Boolean(img?.complete && img.naturalWidth > 0),
+    top: Math.round(box.top), left: Math.round(box.left),
+    background: getComputedStyle(a).backgroundColor,
+  };
+}));
+ok("step 1 shows both store logos", stores.length === 2 && stores.every((s) => s.loaded),
+  JSON.stringify(stores.map((s) => s.loaded)));
+ok("the App Store logo opens the App Store listing",
+  stores[0]?.href === "https://apps.apple.com/in/app/cheekoai/id6748904798", stores[0]?.href);
+ok("the Google Play logo opens the Play listing",
+  stores[1]?.href === "https://play.google.com/store/apps/details?id=com.cheekoai.in", stores[1]?.href);
+ok("both open in a new tab, without handing it this page",
+  stores.every((s) => s.target === "_blank" && s.rel.includes("noopener")));
+ok("each still names its store for screen readers",
+  /App Store/.test(stores[0]?.label) && /Google Play/.test(stores[1]?.label));
+ok("side by side, with no box behind them",
+  stores[0]?.top === stores[1]?.top && stores[1]?.left > stores[0]?.left
+  && stores.every((s) => s.background === "rgba(0, 0, 0, 0)"), JSON.stringify(stores.map((s) => [s.top, s.left, s.background])));
 
 await page.click("#headerAccountBtn");
 await page.waitForSelector("#authModal.modal--open");

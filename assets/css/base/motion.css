@@ -1,0 +1,22 @@
+/* =============================================================
+   BASE / MOTION
+   The page's shared entrances, for things that appear because
+   something was tapped: a support tab's panel, an FAQ answer, the
+   Finish confirmation, the Device Info list. Press feedback is not
+   here — each component owns its :active rule, sized by the
+   --press-scale-* tokens. reset.css switches all of it off for
+   anyone who asked for reduced motion.
+   ============================================================= */
+
+/* Fade up a few pixels: content arriving in place. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* A small overshoot: a confirmation mark landing. */
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(.6); }
+  70%  { opacity: 1; transform: scale(1.06); }
+  100% { transform: none; }
+}

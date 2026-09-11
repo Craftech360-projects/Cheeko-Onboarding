@@ -1,7 +1,7 @@
 /* =============================================================
    COMPONENT / PANEL
    The generic raised card, plus the small blocks built on the same
-   inset-surface idea: detail-block, status-pill.
+   inset-surface idea: profile-card, status-pill.
    ============================================================= */
 
 .panel {
@@ -17,37 +17,114 @@
   font-size: 18px;
 }
 
-/* ---------- detail block (account modal sections) ---------- */
-.detail-block {
+/* ---------- profile card (account modal) ----------
+   The usual shape of an account panel: one bordered box, the parent's
+   initials and name on a soft strip at the top, then a row per detail —
+   small icon, label above value. */
+.profile-card {
+  margin-bottom: 18px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+}
+
+.profile-card__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   padding: 18px;
-  margin-bottom: 14px;
   background: var(--color-soft);
-  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--color-line);
 }
 
-.detail-block__title {
-  margin-bottom: 12px;
+.profile-card__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
   font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--color-brand-deep);
-}
-
-.detail-block p {
-  padding: 4px 0;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-}
-
-.detail-block strong {
-  color: var(--color-ink);
+  font-size: 19px;
   font-weight: 800;
+  letter-spacing: .02em;
+  color: var(--color-on-brand);
+  background: var(--color-brand);
+  border-radius: 50%;
 }
 
-.detail-block__dot { color: var(--color-success); }
+.profile-card__who { min-width: 0; }
+
+.profile-card__name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.profile-card__role {
+  margin-top: 3px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.profile-card__fields {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Icon in its own column, spanning both lines; label above value. */
+.profile-card__field {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  column-gap: 14px;
+  align-items: center;
+  padding: 13px 18px;
+}
+
+.profile-card__field + .profile-card__field { border-top: 1px solid var(--color-line); }
+
+.profile-card__icon {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--color-brand-deep);
+  background: var(--color-tint);
+  border-radius: 50%;
+}
+
+.profile-card__icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.profile-card__label {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-muted);
+}
+
+/* An email can be long: it wraps rather than running out of the box. */
+.profile-card__value {
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
 
 /* ---------- status pill ---------- */
 .status-pill {
