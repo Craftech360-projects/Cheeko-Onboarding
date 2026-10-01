@@ -2,8 +2,8 @@
    LAYOUT / SITE FOOTER
    ============================================================= */
 
+/* No top margin: .page-main's bottom padding already separates the two. */
 .site-footer {
-  margin-top: var(--space-section);
   padding: 44px 0 32px;
   background: var(--color-paper);
   border-top: 1px solid var(--color-line);

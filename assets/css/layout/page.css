@@ -10,8 +10,10 @@
   padding-inline: var(--space-gutter);
 }
 
+/* The bottom padding is the only gap above the footer — the footer adds
+   none of its own, so the two can't stack into a band of empty page. */
 .page-main {
-  padding-block: clamp(28px, 6vw, 52px) var(--space-section);
+  padding-block: clamp(28px, 6vw, 52px) clamp(28px, 5vw, 48px);
 }
 
 /* ---------- page header ---------- */

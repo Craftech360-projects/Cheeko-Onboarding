@@ -1,11 +1,10 @@
 /* =============================================================
    COMPONENT / MEDIA
-   Video tutorial cards and the simulated player stage.
+   Video tutorial cards and the video player.
    ============================================================= */
 
 /* ---------- video cards ---------- */
-/* A horizontal rail: six tutorials never fit a row, so they scroll and
-   snap rather than wrapping into a ragged grid. */
+/* A horizontal rail that scrolls and snaps rather than wrapping. */
 .video-scroller {
   display: grid;
   grid-auto-flow: column;
@@ -59,10 +58,10 @@
   transition-duration: var(--speed-press);
 }
 
-/* The artwork is a tall 9:16 portrait. 2:3 shows most of it and keeps
-   the cards tall, while a rail of six still fits the eye. The play badge
-   sits dead centre, so a centred cover crop keeps it. */
+/* The artwork is a tall 9:16 portrait. A 2:3 crop keeps the cards compact
+   while leaving the main artwork and play badge in view. */
 .video-card__thumb {
+  position: relative;
   display: block;
   aspect-ratio: 2 / 3;
   margin-bottom: 10px;
@@ -83,6 +82,25 @@
   border-radius: inherit;
 }
 
+.video-card__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding-left: 3px;
+  color: #fff;
+  font-size: 20px;
+  background: rgba(25, 20, 15, .8);
+  border: 2px solid rgba(255, 255, 255, .9);
+  border-radius: 50%;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, .3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
 .video-card__title {
   padding-inline: 6px;
   font-family: var(--font-display);
@@ -99,52 +117,48 @@
   color: var(--color-muted);
 }
 
-/* ---------- simulated player stage ---------- */
-.video-stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 270px;
-  padding: 52px 24px;
-  text-align: center;
-  color: var(--color-on-dark);
-  background: var(--color-ink);
+.tutorial-video {
+  display: block;
+  width: 100%;
+  max-height: 92vh;
+  aspect-ratio: 9 / 16;
+  object-fit: contain;
+  background: #000;
 }
 
-.video-stage__icon {
-  font-size: 52px;
-  animation: stage-pulse 2s ease-in-out infinite;
+#videoModal .modal__dialog {
+  position: relative;
+  width: min(100%, 440px, 51.75vh);
+  max-width: none;
+  overflow: hidden;
+  background: #000;
 }
 
-.video-stage__title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--color-on-dark);
+.video-modal__close {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: #fff;
+  font: inherit;
+  font-size: 30px;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .8);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 }
 
-.video-stage__caption {
-  max-width: 36ch;
-  font-size: 15px;
-  font-weight: 500;
-  color: rgba(255, 246, 232, .7);
-}
+.video-modal__close:hover { opacity: .8; }
 
-.video-stage__tag {
-  margin-top: 14px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-
-@keyframes stage-pulse {
-  0%, 100% { transform: scale(1);    opacity: 1;   }
-  50%      { transform: scale(1.07); opacity: .75; }
+.video-modal__close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 @media (min-width: 600px) {

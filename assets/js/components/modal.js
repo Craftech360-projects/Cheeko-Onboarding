@@ -23,6 +23,7 @@ export function closeModal(modal) {
   if (!modal) return;
   modal.classList.remove(OPEN_CLASS);
   if (!qs(`.${OPEN_CLASS}`)) document.body.classList.remove(BODY_LOCK_CLASS);
+  modal.dispatchEvent(new Event("modal:close"));
 }
 
 /**

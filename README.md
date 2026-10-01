@@ -70,6 +70,15 @@ Screenshots live in `assets/img/screens/`, which has its own README naming
 the three files, how they are prepared, and what to do with an export that
 does not already carry a device frame.
 
+### Tutorial videos
+
+The tutorial videos and thumbnails are served from CloudFront rather than
+bundled with the site. Each pair shares a `vNN-topic` stem, such as
+`v20-meet-cheeko.mp4` and `v20-meet-cheeko-thumbnail.png`. The number
+preserves the source clip ID; the topic is lowercase kebab case. The
+tutorial cards in `index.html` use the verified media URLs at
+`https://dsmzc13oafp54.cloudfront.net/website-media/start.cheekoai.in/`.
+
 ### JavaScript
 
 ES modules, one concern per file. Each exports a single `initX()` that
@@ -90,7 +99,7 @@ that knows about more than one feature.
 | `components/modal.js` | open, close, backdrop, Escape, scroll lock |
 | `components/info-tabs.js` | support tab strip |
 | `components/faq-accordion.js` | single-open FAQ |
-| `components/video-modal.js` | simulated tutorial player |
+| `components/video-modal.js` | local tutorial video player |
 | `features/onboarding-wizard.js` | the five-step slider and progress rail; Finish's confirmation and its jump to Device Info |
 | `features/parent-auth.js` | sign in / sign up / register card, log out |
 | `features/parent-dashboard.js` | safety controls, resource shortcuts |
